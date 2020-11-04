@@ -15,5 +15,8 @@
     "url": "https://github.com/marmits/nodeAppli/issues"
   },
   "homepage": "https://github.com/marmits/nodeAppli#readme",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
