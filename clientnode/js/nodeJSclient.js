@@ -1,27 +1,21 @@
 class nodeJSclient {
 
-	constructor (env = null) {
+	constructor (env = null){
    
-       
         this.nodejs_server = "http://127.0.0.1:1337";
         this.socketio = null;
         this.env = env;
         if(env === null){
             this.env = this.ENVIRONNEMENT;
-        }
-        
-
+        }        
         // Callbacks à définir pour gérer les actions
         this.onConnectionSuccessCallback = null;
-
     }
 
-    connectServer ()
-    {
+    connectServer(){
         let that = this;
         console.log("tentative de connexion au serveur nodejs ...");
         
-
         this.socketio = io.connect(this.nodejs_server, {
             transports: ['websocket'],
             upgrade: false
@@ -37,8 +31,6 @@ class nodeJSclient {
             if(typeof that.onConnectionSuccessCallback === 'function') {
                 that.onConnectionSuccessCallback();
             }
-            
-
          });
     }
 
@@ -46,6 +38,5 @@ class nodeJSclient {
     get ENVIRONNEMENT(){
         return "geoffroy";
     }
-
 }
 
