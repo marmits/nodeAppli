@@ -7,7 +7,7 @@ var app = express();
 const http = require('http').Server(app);
 const io = require('socket.io').listen(http);
 
-var test  = "coucou 5";
+var test  = "coucou 6";
 var hello = "Hello World\n";
 
 var datas = {var1:test, var2:hello, var3:"test3", var4:"test4"};
@@ -19,7 +19,18 @@ app.get('/',function(req, res) {
 });
 
 io.on('connection', client => {
-  client.on('event', data => { /* … */ });
+  
+  
+  Logger.log("Client connecté ", `ID: ${client.id}`);
+
+  client.on('setConfig', data => { 
+  	Logger.log("action page client ", `message: ${data}`);	
+  });
+  client.on('clicklien', data => { 
+  	io.emit('clicklien', data);
+  	Logger.log("click lien de ", `message: ${data} from ${client.id}`);	
+  });
+
   client.on('disconnect', () => { /* … */ });
 });
 // On lance l'écoute du serveur NodeJS sur le port 8001

@@ -25,3 +25,8 @@ Ajouter package.json:
     "start": "nodemon entry.js -devmode -something 1"
   }
 De cette façon, vous pouvez simplement utiliser npm start depuis votre console.
+
+
+
+lancer le serveur nodejs
+npm start

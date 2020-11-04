@@ -1,11 +1,15 @@
 class nodeJSclient {
 
-	constructor (qui = self.ESSAI) {
-
+	constructor (env = null) {
+   
        
         this.nodejs_server = "http://127.0.0.1:1337";
         this.socketio = null;
-        this.qui = qui;
+        this.env = env;
+        if(env === null){
+            this.env = this.ENVIRONNEMENT;
+        }
+        
 
         // Callbacks à définir pour gérer les actions
         this.onConnectionSuccessCallback = null;
@@ -15,7 +19,8 @@ class nodeJSclient {
     connectServer ()
     {
         let that = this;
-        console.log("connexion au serveur nodejs ...");
+        console.log("tentative de connexion au serveur nodejs ...");
+        
 
         this.socketio = io.connect(this.nodejs_server, {
             transports: ['websocket'],
@@ -25,23 +30,20 @@ class nodeJSclient {
         this.socketio.on("connect" , () => {
 
             console.log("connexion au serveur nodejs ... OK");
-
-            console.log("envoi de la configuration client au serveur nodejs ...");
-
-
-            /*this.socketio.emit('setConfig', "config test");
+            console.log(`Environnement : ${that.env}`);
+            this.socketio.emit('setConfig', "config test");
             console.log("envoi de la configuration client au serveur nodejs ... OK");
 
             if(typeof that.onConnectionSuccessCallback === 'function') {
                 that.onConnectionSuccessCallback();
             }
-            */
+            
 
          });
     }
 
 
-    static get ESSAI(){
+    get ENVIRONNEMENT(){
         return "geoffroy";
     }
 
