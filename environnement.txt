@@ -1,0 +1,27 @@
+#####
+nodemon (pour eviter de relancer le cript a chaque modification)
+https://riptutorial.com/fr/node-js/example/5642/autoreload-sur-les-modifications-du-code-source-a-l-aide-de-nodemon
+
+Le paquet nodemon permet de recharger automatiquement votre programme lorsque vous modifiez un fichier du code source.
+
+Installer nodemon globalement
+npm install -g nodemon (ou npm i -g nodemon )
+
+Installer nodemon localement
+Au cas où vous ne voulez pas l'installer globalement
+
+npm install --save-dev nodemon (ou npm i -D nodemon )
+
+Utiliser nodemon
+Exécutez votre programme avec nodemon entry.js (ou nodemon entry )
+
+Cela remplace l'utilisation habituelle de node entry.js (ou node entry ).
+
+Vous pouvez également ajouter votre démarrage nodemon en tant que script npm, ce qui peut être utile si vous souhaitez fournir des paramètres et ne pas les taper à chaque fois.
+
+Ajouter package.json:
+
+  "scripts": {
+    "start": "nodemon entry.js -devmode -something 1"
+  }
+De cette façon, vous pouvez simplement utiliser npm start depuis votre console.
