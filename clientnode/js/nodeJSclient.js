@@ -25,7 +25,7 @@ class nodeJSclient {
 
             console.log("connexion au serveur nodejs ... OK");
             console.log(`Environnement : ${that.env}`);
-            this.socketio.emit('setConfig', "config test");
+            this.socketio.emit('setConfig', `${that.env}`);
             console.log("envoi de la configuration client au serveur nodejs ... OK");
 
             if(typeof that.onConnectionSuccessCallback === 'function') {

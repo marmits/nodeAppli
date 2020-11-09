@@ -6,12 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
     <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
    
     <div class="container">
-    	<a href="#" id="lien">Client envoi pour nodejs</a>
-    	<div class="resultat"></div>   
+    	<div class="gauche">
+	    	<a href="#" id="lien">Client envoi pour nodejs</a>
+	    	<div class="resultat"></div>   
+	    </div>
+	    <div class="main">
+	    	<div class="login">
+	    	 	<label for="nom">Nom</label>
+		    	<input id="nom" type="text" value="toto"/>
+		    	<button id="submit" type="submit" class="btn btn-primary">Submit</button>
+		    </div>
+		    <div class="deconnect">	    	 	
+		    	<button id="deco" type="submit" class="btn btn-primary">Deco</button>
+		    </div>
+	    </div>
     </div>
 
 <script src="../node_modules/socket.io-client/dist/socket.io.js"></script>
