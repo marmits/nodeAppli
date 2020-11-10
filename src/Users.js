@@ -56,4 +56,24 @@ module.exports = class Users
             return false;
         }
     }
+
+    setClients(user, idClientConnect){
+        return new Promise((resolve, reject) => {
+            let listClients = [];
+            if((user !== null) && (idClientConnect !== null)) {
+                let clients = {};
+                clients.idclient = idClientConnect;
+                clients.id = user.id;
+                clients.nom = user.nom;
+                clients.pass = user.pass;
+                clients.role = user.role;
+                listClients[idClientConnect] = clients;
+                return resolve(listClients);
+            }
+            else{
+                var error = "une valeurs est null";
+                return reject(error);
+            }        
+        });
+    }
 };
