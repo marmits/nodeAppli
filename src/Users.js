@@ -36,6 +36,7 @@ module.exports = class Users
             });
 		 });
 	}
+
 	async logActionInDatabase(user_id,action)
     {
 
@@ -57,12 +58,13 @@ module.exports = class Users
         }
     }
 
+    // via client socketio
     setClients(user, idClientConnect){
         return new Promise((resolve, reject) => {
             let listClients = [];
             if((user !== null) && (idClientConnect !== null)) {
                 let clients = {};
-                clients.idclient = idClientConnect;
+                clients.socketid = idClientConnect;
                 clients.id = user.id;
                 clients.nom = user.nom;
                 clients.pass = user.pass;
@@ -76,4 +78,6 @@ module.exports = class Users
             }        
         });
     }
+
+    
 };

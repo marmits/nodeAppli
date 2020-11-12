@@ -8,6 +8,7 @@ let mainScript = function(){
 	this.gauche = document.querySelectorAll('div.gauche');
 	this.main = document.querySelectorAll('div.main');
 	this.login =  document.getElementById("login");
+	this.socketid = null;
 
 	this.setElementVisibility = function(element,visible){
         if(typeof visible === "boolean" && element instanceof HTMLElement){
@@ -37,48 +38,98 @@ let mainScript = function(){
          
         that.setElementVisibility(that.main[0].querySelectorAll('div.login')[0], true);
         that.setElementVisibility(that.main[0].querySelectorAll('div.deconnect')[0], false);
-        this.nodeJSclient.socketio.on('setConfig', function(msg){
-             that.main[0].appendChild(span).innerHTML = msg;
+        that.main[0].appendChild(span).innerHTML = "";
+        this.nodeJSclient.socketio.on('setConfig', function(msg, socketid){
+			
+			// mettre en session le client id
+
+			that.bindSetidclientSession(socketid)
+			.then((datas) =>  {
+				that.socketid = datas.socketid;				
+			});
         });
     }
 
 	
-    this.bindNomSubmit = function(){
+    this.bindLoginSubmit = function(){
     	let that = this;
     	if(that.submit !== undefined){
     		that.submit.addEventListener('click', function(e){
     			e.stopPropagation();
                 e.preventDefault(); 
-                that.nodeJSclient.socketio.emit('submitNom', that.login.value);
+                that.main[0].querySelectorAll('span')[0].innerHTML = "";
+                that.bindSetLoginSession(that.login.value, that.socketid)
+                .then((datas) =>  {
+                	
+                	console.log(datas);
+                	if(datas.connect === 1){
+                		that.main[0].querySelectorAll('span')[0].innerHTML = datas.client.socketid + " / " + datas.client.nom;
+                		var div = document.createElement("DIV");
+						that.resultat[0].appendChild(div).innerHTML=datas.client.socketid + "->" + datas.client.id + " " + datas.client.nom + " " + datas.client.role + " connecté"; 
+						that.setElementVisibility(that.main[0].querySelectorAll('div.deconnect')[0], true);
+						that.setElementVisibility(that.main[0].querySelectorAll('div.login')[0], false);
+                	}
+			        
+			    });
+                
                 return false;                           
     		});
-    		this.nodeJSclient.socketio.on('submitNom', function(clients, idclient , tabTotal, indice){
-               
-    			if(clients !== null){
-    				
-                    userConnect.idclient = idclient;     
-                    userConnect.datas = clients;  
-                    //tabClients.push(userConnect);
-           			console.log(tabTotal[indice].nom);
-           			//that.main[0].querySelectorAll('span')[0].innerHTML = tabTotal[indice].nom;
-                    //that.main[0].querySelectorAll('span')[0].innerHTML = tabTotal[indice].id + " " + tabTotal[indice].nom;
-                    /*
-    				var div = document.createElement("DIV");
-					that.resultat[0].appendChild(div).innerHTML=user.id_client;
-                    */
-					var div = document.createElement("DIV");
-					that.resultat[0].appendChild(div).innerHTML=userConnect.datas.id + " " + userConnect.datas.nom + " " + userConnect.datas.role + " connecté"; 
-					that.setElementVisibility(that.main[0].querySelectorAll('div.deconnect')[0], true);
-					that.setElementVisibility(that.main[0].querySelectorAll('div.login')[0], false);
-                    
-
-				} else {
-					console.log("non trouvé");
-				}
-                
-			});
+    		
     	}
     };
+
+    this.bindSetLoginSession = async function(login, socketid){
+    	
+    	var xhr=new XMLHttpRequest();
+    	var url = "http://127.0.0.1:1337/sessionuser/" + login + "/socketid/" + socketid;
+    	
+        var res = new Promise(function (resolve, reject) {
+            xhr.open("GET",url);
+            xhr.responseType = "json";
+            xhr.send();
+            xhr.onload = function(){
+                if (xhr.status != 200){ 
+                    console.log("Erreur " + xhr.status + " : " + xhr.statusText);
+                }else{ 
+                    let datas = [];
+                    let status = xhr.status;
+                    let obj = JSON.parse(JSON.stringify(xhr.response));         
+                    resolve(obj);
+                }
+            };
+            xhr.onerror = function(){
+                reject("la requête a echoué");
+            };
+        });
+        return res;    
+    }
+
+    this.bindSetidclientSession = async function(socketid){
+    	
+    	var xhr=new XMLHttpRequest();
+    	var url = "http://127.0.0.1:1337/idclientsession/" + socketid;
+
+        var res = new Promise(function (resolve, reject) {
+            xhr.open("GET",url);
+            xhr.responseType = "json";
+            xhr.send();
+            xhr.onload = function(){
+                if (xhr.status != 200){ 
+                    console.log("Erreur " + xhr.status + " : " + xhr.statusText);
+                }else{ 
+                    let datas = [];
+                    let status = xhr.status;
+                    let obj = JSON.parse(JSON.stringify(xhr.response));    
+
+                    resolve(obj);
+                }
+            };
+            xhr.onerror = function(){
+                reject("la requête a echoué");
+            };
+        });
+        return res;    
+    }
 
 
     this.bindLien = function(){
@@ -120,11 +171,12 @@ let mainScript = function(){
 			});
     	}
     };
+
     
 	this.registerToNodeJsServer();
     this.init();
 	this.bindLien();
-	this.bindNomSubmit();
+	this.bindLoginSubmit();
 	this.bindDeco();
 
 };

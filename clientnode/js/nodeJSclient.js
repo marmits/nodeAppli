@@ -36,7 +36,7 @@ class nodeJSclient {
 
 
     get ENVIRONNEMENT(){
-        return "geoffroy";
+        return "env init";
     }
 }
 
