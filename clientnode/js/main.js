@@ -45,6 +45,8 @@ let mainScript = function(){
 
 			that.bindSetidclientSession(socketid)
 			.then((datas) =>  {
+				console.log(datas);
+				// mettre en memoire tempo pour etre recupérer par clicklien
 				that.socketid = datas.socketid;				
 			});
         });
