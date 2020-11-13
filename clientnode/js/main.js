@@ -8,6 +8,7 @@ let mainScript = function(){
 	this.gauche = document.querySelectorAll('div.gauche');
 	this.main = document.querySelectorAll('div.main');
 	this.login =  document.getElementById("login");
+	this.client_id =  document.getElementById("client_id");
 	this.socketid = null;
 
 	this.setElementVisibility = function(element,visible){
@@ -24,33 +25,24 @@ let mainScript = function(){
         }
     };
 
-    
-
-	this.registerToNodeJsServer = function() {
-		this.nodeJSclient = new nodeJSclient();
-		// Connexion au serveur
-		this.nodeJSclient.connectServer();
-	};
-
     this.init = function(){
         let that = this;
-        var span = document.createElement("SPAN");
-         
-        that.setElementVisibility(that.main[0].querySelectorAll('div.login')[0], true);
-        that.setElementVisibility(that.main[0].querySelectorAll('div.deconnect')[0], false);
-        that.main[0].appendChild(span).innerHTML = "";
-        this.nodeJSclient.socketio.on('setConfig', function(msg, socketid){
-			
-			// mettre en session le client id
 
-			that.bindSetidclientSession(socketid)
-			.then((datas) =>  {
-				console.log(datas);
-				// mettre en memoire tempo pour etre recupérer par clicklien
-				that.socketid = datas.socketid;				
+			that.SetidclientSession(socketid)
+			.then((datas) =>  {	
+
 			});
-        });
-    }
+       
+    };
+    
+
+	this.registerToNodeJsServer = function(id_client) {
+		this.nodeJSclient = new nodeJSclient();
+		// Connexion au serveur
+		this.nodeJSclient.connectServer(id_client);
+	};
+
+
 
 	
     this.bindLoginSubmit = function(){
@@ -59,19 +51,50 @@ let mainScript = function(){
     		that.submit.addEventListener('click', function(e){
     			e.stopPropagation();
                 e.preventDefault(); 
-                that.main[0].querySelectorAll('span')[0].innerHTML = "";
-                that.bindSetLoginSession(that.login.value, that.socketid)
-                .then((datas) =>  {
-                	
-                	console.log(datas);
+                
+                that.SetLoginSession(that.login.value)
+                .then((datas) =>  {                	              
                 	if(datas.connect === 1){
-                		that.main[0].querySelectorAll('span')[0].innerHTML = datas.client.socketid + " / " + datas.client.nom;
+                		console.log(datas);
+                		var span = document.createElement("SPAN");
+                		var input  = document.createElement("input");
+                		that.main[0].appendChild(input).setAttribute("id","client_id");
+                		that.main[0].appendChild(input).setAttribute("type","hidden");
+                		document.getElementById("client_id").value = datas.client.id;
+
+                		that.main[0].appendChild(span).innerHTML = "";
+
+                		that.main[0].querySelectorAll('span')[0].innerHTML = datas.client.infos.nom;
                 		var div = document.createElement("DIV");
-						that.resultat[0].appendChild(div).innerHTML=datas.client.socketid + "->" + datas.client.id + " " + datas.client.nom + " " + datas.client.role + " connecté"; 
+						that.resultat[0].appendChild(div).innerHTML=datas.client.id + " " + datas.client.infos.nom + " " + datas.client.infos.role + " connecté"; 
 						that.setElementVisibility(that.main[0].querySelectorAll('div.deconnect')[0], true);
 						that.setElementVisibility(that.main[0].querySelectorAll('div.login')[0], false);
-                	}
-			        
+
+
+						that.registerToNodeJsServer(datas.client.id);
+
+						that.SetStatutClient(datas.client.id, "1")
+						.then((update) => {
+							
+							if( update.updateOnline === "1"){
+								that.nodeJSclient.socketio.emit('connecton',  datas);
+							
+								that.nodeJSclient.socketio.on('connecton', function(client){
+									for (var i = 0; i < client.length; i++) {
+										var AlreadyOnlineUser = client[i].nom;
+										if(datas.client.id !== client[i].id){
+											var div = document.createElement("DIV");
+											that.resultat[0].appendChild(div).innerHTML=AlreadyOnlineUser + " ONLINE";
+										} 
+									}								
+								});
+		                		that.bindLien(datas.client);
+							}
+						});
+
+						
+                		that.bindDeco(datas.client.id);
+                	}			        
 			    });
                 
                 return false;                           
@@ -80,10 +103,31 @@ let mainScript = function(){
     	}
     };
 
-    this.bindSetLoginSession = async function(login, socketid){
+    
+
+    this.bindLien = function(client){
+        let that = this;
+
+        if(that.lien !== undefined){        
+            that.lien.addEventListener('click', function(e){
+                e.stopPropagation();
+                e.preventDefault(); 
+
+                that.nodeJSclient.socketio.emit('clicklien', "ok", client);
+                return false;
+            });
+            this.nodeJSclient.socketio.on('clicklien', function(msg, client){
+            	console.log(client);
+                var div = document.createElement("DIV");
+                that.resultat[0].appendChild(div).innerHTML= msg + " id: " +  client.id + "nom: " + client.infos.nom; 
+            });
+        }
+    };
+
+    this.SetLoginSession = async function(login){
     	
     	var xhr=new XMLHttpRequest();
-    	var url = "http://127.0.0.1:1337/sessionuser/" + login + "/socketid/" + socketid;
+    	var url = "http://127.0.0.1:1337/sessionuser/" + login;
     	
         var res = new Promise(function (resolve, reject) {
             xhr.open("GET",url);
@@ -104,9 +148,36 @@ let mainScript = function(){
             };
         });
         return res;    
-    }
+    };
 
-    this.bindSetidclientSession = async function(socketid){
+    this.SetStatutClient = async function(clientId, statut){
+    	
+    	var xhr=new XMLHttpRequest();
+    	var url = "http://127.0.0.1:1337/updatestatut/" + clientId + "/statut/" + statut;
+
+        var res = new Promise(function (resolve, reject) {
+            xhr.open("GET",url);
+            xhr.responseType = "json";
+            xhr.send();
+            xhr.onload = function(){
+                if (xhr.status != 200){ 
+                    console.log("Erreur " + xhr.status + " : " + xhr.statusText);
+                }else{ 
+                    let datas = [];
+                    let status = xhr.status;
+                    let obj = JSON.parse(JSON.stringify(xhr.response));    
+
+                    resolve(obj);
+                }
+            };
+            xhr.onerror = function(){
+                reject("la requête a echoué");
+            };
+        });
+        return res;    
+    };
+
+    this.SetidclientSession = async function(socketid){
     	
     	var xhr=new XMLHttpRequest();
     	var url = "http://127.0.0.1:1337/idclientsession/" + socketid;
@@ -131,55 +202,49 @@ let mainScript = function(){
             };
         });
         return res;    
-    }
-
-
-    this.bindLien = function(){
-        let that = this;
-        if(that.lien !== undefined){        
-            that.lien.addEventListener('click', function(e){
-                e.stopPropagation();
-                e.preventDefault(); 
-                that.nodeJSclient.socketio.emit('clicklien', "ok");
-                return false;
-            });
-            this.nodeJSclient.socketio.on('clicklien', function(msg,  clients, indice){
-               
-                var div = document.createElement("DIV");
-                that.resultat[0].appendChild(div).innerHTML=clients[indice].idclient + " : " + msg + " / " + clients[indice].nom; 
-            });
-        }
     };
 
-    this.bindDeco = function(){
+
+    
+
+    this.bindDeco = function(clientId){
     	let that = this;
     	if(that.deco !== undefined){
     		that.deco.addEventListener('click', function(e){
     			e.stopPropagation();
                 e.preventDefault(); 
                 
-                that.nodeJSclient.socketio.emit('logout', userConnect);
+                that.nodeJSclient.socketio.emit('disconnect', clientId);
                 return false;                           
     		});
-    		this.nodeJSclient.socketio.on('logout', function(statut, qui){
-    			if(statut === 1){
+    		this.nodeJSclient.socketio.on('disconnect', function( test){
+    				console.log(clientId);
+    				
+    				
+    				that.SetStatutClient(clientId, "0")
+					.then((update) => {
+						console.log("ici");
+						that.main[0].querySelectorAll('span')[0].innerHTML = "";
+	    				that.setElementVisibility(that.main[0].querySelectorAll('div.login')[0], true);
+	    				that.setElementVisibility(that.main[0].querySelectorAll('div.deconnect')[0], false);
+	    				var div = document.createElement("DIV");
+	    				that.resultat[0].appendChild(div).innerHTML=clientId + " OFFLINE";
+					});
 
-    				that.main[0].querySelectorAll('span')[0].innerHTML = "";
-    				that.setElementVisibility(that.main[0].querySelectorAll('div.login')[0], true);
-    				that.setElementVisibility(that.main[0].querySelectorAll('div.deconnect')[0], false);
-    				var div = document.createElement("DIV");
-					that.resultat[0].appendChild(div).innerHTML = qui.datas.nom + " déconnecté";
-    			}    		
+
+    				
+					//that.resultat[0].appendChild(div).innerHTML = qui.datas.nom + " déconnecté";
+    			 		
 			});
     	}
     };
 
     
-	this.registerToNodeJsServer();
-    this.init();
-	this.bindLien();
+	
+    
+	
 	this.bindLoginSubmit();
-	this.bindDeco();
+	
 
 };
 

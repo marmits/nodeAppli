@@ -12,10 +12,13 @@ var datas = {var1:serveur, var2:message, var3:"test3", var4:"test4"};
 
 var tabClientsConnect = [];
 
+
+var clientData = {};
+
 app.get('/',function(req, res) {
 
 	sess = req.session;
-	console.log(sess.email);
+	console.log(sess.login);
     res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
     res.end(datas.var1 + "<br />" + datas.var2 + " " + sess.email);    
 
@@ -31,57 +34,58 @@ app.get('/welcome', (req, res) => {
     res.sendFile(path.resolve('loginForm.html'));
 });
 
-app.get('/sessionuser/:login/socketid/:socketid',(req,res) => {
-    sess = req.session;
-    sess.socketid = req.params.socketid;    
+app.get('/sessionuser/:login',(req,res) => {
+    sess = req.session;  
     sess.login = req.params.login;
+
     let client = {};
     const Users = require('../Users');
     const Client = require('../Client');
-    const User = new Users();
-    
+    const User = new Users();    
     User.checkUser(sess.login)
     .then((results) => {
-
-        var user = null;
+        user = results[0];  
         if( results.length !== 0){
             sess.connect = 1;
-            user = results[0];           
-            User.logActionInDatabase(user.id,"connexion");
-            User.setClients(user, sess.socketid)
-            .then((listClients) => {
-                
-                
-                client = listClients[sess.socketid];
-                sess.client = client;
-                
-                tabClientsConnect.push(client);
-                sess.tabClientsConnect = tabClientsConnect;
-
-                //const found = tabClientsConnect.find(element => element.nom === user.nom);        
-                //indice = tabClientsConnect.indexOf(found);             
-                
-                res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
-                res.end(JSON.stringify({connect: sess.connect,  client:sess.client}));
-                Logger.log("Recup database ", `User pass: ${user.pass}`);     
-                Logger.log("click submit client de ", `User login: ${sess.login} from id:  ${sess.socketid}`); 
-            });  
-        } 
-        else{
-            res.end("rien");
+            user = results[0];     
         }
+        return User.setClients(user);
+    })
+    .then((listClients) => {
+        tabClientsConnect.push(listClients);
 
+        clientData.id = listClients.id;
+        clientData.infos = {nom:listClients.nom, role:listClients.role};
+        
+        res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
+        res.end(JSON.stringify({connect: sess.connect,  client:clientData}));
+        Logger.log("Recup database ", `User pass: ${listClients.pass}`);     
+        Logger.log("click submit client de ", `User login: ${clientData.infos.nom}`); 
+        User.logActionInDatabase(listClients.id,"connexion")
     });
     
 });   
 
 
-app.get('/idclientsession/:socketid',(req,res) => {
+app.get('/updatestatut/:userid/statut/:statut',(req,res) => {
     sess = req.session;
-    sess.socketid = req.params.socketid;
-
-    res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
-    res.end(JSON.stringify({socketid: sess.socketid}));
+    var userid = req.params.userid;
+    var statut = req.params.statut;
+    var updateOnline = null;
+    const Users = require('../Users');
+    const User = new Users();    
+    User.updateStatut(userid, statut)
+    .then((results) => {
+        updateOnline = results; 
+        if( results === "1"){
+            return User.onlineUser();  
+        }      
+    })
+    .then((usersOnline) => {
+        
+        res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
+        res.end(JSON.stringify({usersOnline: usersOnline, updateOnline:updateOnline})); 
+    });
     
 });    
 

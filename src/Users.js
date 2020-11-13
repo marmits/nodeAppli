@@ -37,6 +37,35 @@ module.exports = class Users
 		 });
 	}
 
+
+    onlineUser (){
+         return new Promise((resolve, reject) => {
+            database.query(`
+                SELECT u.* from user u where u.online = 1`, (error, result) => {
+                if(error) {
+                    Logger.log('User', 'Erreur SQL lors de la selection du user : ' + error + ' SQL=' + error.sql, nom);
+                    return reject(error);
+                }
+                let user = [];
+                if(result.length > 0) {
+                    result.forEach((userResult) => {
+                        
+                        user.push({
+                            'id' : userResult.id,
+                            'nom' : userResult.nom,
+                            'pass' : userResult.pass,
+                            'role' : userResult.role
+                        });
+                    });
+
+                }
+                
+                
+                return resolve(user); 
+            });
+         });
+    }
+
 	async logActionInDatabase(user_id,action)
     {
 
@@ -58,19 +87,35 @@ module.exports = class Users
         }
     }
 
+    async updateStatut(user_id,statut)
+    {
+        //*UPDATE `user` SET `online` = '1' WHERE `user`.`id` = 1; */
+        try {
+            let result = await database.query({
+                sql: `
+                    UPDATE user set online = ${statut} WHERE user.id = ${user_id}`
+            });
+            
+            return statut;
+        } catch(err) {
+            Logger.log('users', `Erreur SQL lors de l'insertion des logs : ${err}`,user_id);
+            return false;
+        }
+    }
+
     // via client socketio
-    setClients(user, idClientConnect){
+    setClients(user){
         return new Promise((resolve, reject) => {
             let listClients = [];
-            if((user !== null) && (idClientConnect !== null)) {
+            if(user !== null) {
                 let clients = {};
-                clients.socketid = idClientConnect;
+
                 clients.id = user.id;
                 clients.nom = user.nom;
                 clients.pass = user.pass;
                 clients.role = user.role;
-                listClients[idClientConnect] = clients;
-                return resolve(listClients);
+
+                return resolve(clients);
             }
             else{
                 var error = "une valeurs est null";
@@ -79,5 +124,5 @@ module.exports = class Users
         });
     }
 
-    
+
 };

@@ -22,10 +22,11 @@ class nodeJSclient {
         });
 
         this.socketio.on("connect" , () => {
-
+             var client_id = document.getElementById("client_id").value;
+             console.log(`Client_id : ${client_id}`);
             console.log("connexion au serveur nodejs ... OK");
             console.log(`Environnement : ${that.env}`);
-            this.socketio.emit('setConfig', `${that.env}`);
+            this.socketio.emit('setConfig', `${that.env}`,  `${client_id}`);
             console.log("envoi de la configuration client au serveur nodejs ... OK");
 
             if(typeof that.onConnectionSuccessCallback === 'function') {

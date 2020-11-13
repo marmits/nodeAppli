@@ -2,8 +2,8 @@ const Logger = require('../Logger');
 const {clients} = require('../../server');
 
 /**
- * Retourne le client ou undifined en fonction du agent_id recherché
- * @param agent_id
+ * Retourne le client ou undifined en fonction du client_id recherché
+ * @param client_id
  * @return Client|undefined
  */
 function getClientById(client_id)

@@ -43,75 +43,61 @@ const Client = require('./src/Client');
 
 io.on('connection', (socket) => {
 
-  let clientConnect = new Client();
-  clientConnect.socket = socket;
+  let client = new Client();
+  client.socket = socket;
 
+   Logger.log(`Nouvelle connexion`,`Socket ${client.socket.id} connecté.`,client.socket);
 
-  socket.on('setConfig', data => { 
-    clientConnect.idclient = socket.id;
-    let connectedClient = getClientById(clientConnect.idclient);
-
+  socket.on('setConfig', (data, _client_id) => { 
+    Logger.log("Environnement ", `${data}`);  
+    client.clientId = _client_id;
+    let connectedClient = getClientById(client.clientId);
 
     if(connectedClient === undefined) {
 
-            Logger.log("Association socket <> client",`Socket ${socket.id} associé  au client ${clientConnect.idclient}`, clientConnect.socket);          
-            clients.push(clientConnect);
-        } else {
-            Logger.log("Réassociation socket <> client",`Socket ${clientConnect.socket.id} associé au client  ${clientConnect.idclient}`, clientConnect.socket);
-            connectedClient.socket = socket;
-        }
+      Logger.log("Association socket <> client",`Socket ${client.socket.id} associé  au client id:  ${client.clientId}`, client.socket);          
+      clients.push(client);
 
-  	Logger.log("Environnement ", `${data}`);	
-    io.emit('setConfig', data, socket.id);
+    } else {
+      Logger.log("Réassociation socket <> client",`Socket ${client.socket.id} associé au client id:  ${client.clientId}`, client.socket);
+      connectedClient.socket = socket;
+    }      	
+
   });
 
 
 
 
-  socket.on('clicklien', data => { 
-    console.log(clientConnect.idclient);
+  socket.on('clicklien', (data, client) => { 
     
-    Logger.log("click lien de ", `message: ${data} from ${socket.id}`); 
-    
-    const found = clients.find(element => element.idclient === socket.id);   
-    
-     
-    if(found !== undefined){
-      indice = clients.indexOf(found);
-      console.log(clients[indice]);
-      //io.emit('clicklien', data,  clients, indice);
-    }
-    
-    
-    
+    Logger.log("click lien de ", `message: ${data} from ${socket.id} userId ${client.id} `); 
+    io.emit('clicklien', data, client);
+
   });
 
-
-
-
-  socket.on('logout', user => { 
+  socket.on('connecton', (data, client) => { 
     
-    console.log(user.datas.nom);
-    io.emit('logout', 1, user);
-
-    const found = tabClientsConnect.find(element => element.idclient === user.id);
-    socket.emit('disconnect');
-    var i = 0;
-    /*clients.forEach((cli) => {      
-
-      if (cli.id_client === user.idclient) {
-        //clients.splice(i, 1);
-        
-        
-        
-      }
-    i++;
+    User.onlineUser()
+    .then((usersOnline) => {
+      io.emit('connecton', usersOnline);
     });
-    */
+    
+
   });
 
-  socket.on('disconnect', () => {     
-      Logger.log("Deconnection de:  ", `from ${socket.id}`); 
+
+
+  // Le client a coupé le socket (changement de page, refresh, fermeture brutale etc ...)
+  socket.on('disconnect', () => {
+      
+      if(client.clientId !== null) {
+             
+          io.emit('disconnect',  "test");
+
+        Logger.log("Déconnexion socket",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
+        client.socket.disconnect(true);
+        delete client.socket;
+      }
   });
 
 });
