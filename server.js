@@ -71,33 +71,52 @@ io.on('connection', (socket) => {
   socket.on('clicklien', (data, client) => { 
     
     Logger.log("click lien de ", `message: ${data} from ${socket.id} userId ${client.id} `); 
-    io.emit('clicklien', data, client);
+    io.emit('clicklien', data, client, socket.id);
 
   });
 
-  socket.on('connecton', (data, client) => { 
-    
+  socket.on('connecton', (data) => { 
+   
     User.onlineUser()
     .then((usersOnline) => {
+
       io.emit('connecton', usersOnline);
     });
     
 
   });
 
-
-
   // Le client a coupé le socket (changement de page, refresh, fermeture brutale etc ...)
-  socket.on('disconnect', () => {
+  socket.on('coupe', (idClient) => {
+
       
       if(client.clientId !== null) {
              
-          io.emit('disconnect',  "test");
+          console.log(idClient);
+          io.emit('coupe',  client.socket.id);
+          Logger.log("Déconnexion socket",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
 
-        Logger.log("Déconnexion socket",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
+      
+        client.socket.disconnect(true);
+        delete client.socket;
+      }
+     
+  });
+
+  // Le client a coupé le socket (changement de page, refresh, fermeture brutale etc ...)
+  /*socket.on('disconnect', (data) => {
+
+   
+      io.emit('disconnect',  client.clientId);
+      if(client.clientId !== null) {
+             
+          Logger.log("Déconnexion socket",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
+
+      
         client.socket.disconnect(true);
         delete client.socket;
       }
   });
+  */
 
 });
