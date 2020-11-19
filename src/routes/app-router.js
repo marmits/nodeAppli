@@ -66,6 +66,18 @@ app.get('/sessionuser/:login',(req,res) => {
     
 });   
 
+app.get('/getinfosclient/:clientId',(req,res) => {
+    const Users = require('../Users');
+    const User = new Users();
+    User.getUserById(req.params.clientId)
+    .then((results) => {
+        res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
+        res.end(JSON.stringify({results: results}));
+    })
+
+});  
+
+
 
 app.get('/updatestatut/:userid/statut/:statut',(req,res) => {
     sess = req.session;

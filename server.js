@@ -21,6 +21,7 @@ var sess; // global session, NOT recommended
 //io.use(sharedsession(session));
 
 const clients = [];
+let compteur = 0;
 module.exports.clients = clients;
 
 
@@ -45,6 +46,7 @@ io.on('connection', (socket) => {
 
   let client = new Client();
   client.socket = socket;
+  
 
    Logger.log(`Nouvelle connexion`,`Socket ${client.socket.id} connecté.`,client.socket);
 
@@ -57,66 +59,60 @@ io.on('connection', (socket) => {
 
       Logger.log("Association socket <> client",`Socket ${client.socket.id} associé  au client id:  ${client.clientId}`, client.socket);          
       clients.push(client);
+      compteur++;
+
 
     } else {
       Logger.log("Réassociation socket <> client",`Socket ${client.socket.id} associé au client id:  ${client.clientId}`, client.socket);
       connectedClient.socket = socket;
     }      	
 
+
   });
 
 
 
 
+
+  socket.on('connecton', (data) => { 
+    let socketIdClient = client.socket.id;
+    let userOnline = {socketIdClient, data};
+      io.emit('connecton', userOnline);
+  });
+
+
   socket.on('clicklien', (data, client) => { 
-    
+    console.log(compteur);
     Logger.log("click lien de ", `message: ${data} from ${socket.id} userId ${client.id} `); 
     io.emit('clicklien', data, client, socket.id);
 
   });
 
-  socket.on('connecton', (data) => { 
-   
-    User.onlineUser()
-    .then((usersOnline) => {
 
-      io.emit('connecton', usersOnline);
-    });
-    
-
-  });
-
-  // Le client a coupé le socket (changement de page, refresh, fermeture brutale etc ...)
   socket.on('coupe', (idClient) => {
-
       
       if(client.clientId !== null) {
-             
-          console.log(idClient);
-          io.emit('coupe',  client.socket.id);
-          Logger.log("Déconnexion socket",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
+           
+          console.log(idClient, client.socket.id);
+          io.emit('coupe',  client.socket.id, idClient);
+          Logger.log("Déconnexion via click logout socket",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
 
       
-        client.socket.disconnect(true);
-        delete client.socket;
+        
       }
      
   });
 
   // Le client a coupé le socket (changement de page, refresh, fermeture brutale etc ...)
-  /*socket.on('disconnect', (data) => {
-
-   
-      io.emit('disconnect',  client.clientId);
+  socket.on('disconnect', () => {
       if(client.clientId !== null) {
-             
+        
           Logger.log("Déconnexion socket",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
 
-      
-        client.socket.disconnect(true);
-        delete client.socket;
+          client.socket.disconnect(true);
+          delete client.socket;
+
       }
   });
-  */
 
 });

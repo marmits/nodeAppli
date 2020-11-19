@@ -12,21 +12,21 @@ class nodeJSclient {
         this.onConnectionSuccessCallback = null;
     }
 
-    connectServer(){
+    connectServer(clientId){
         let that = this;
         console.log("tentative de connexion au serveur nodejs ...");
-        
+   
         this.socketio = io.connect(this.nodejs_server, {
             transports: ['websocket'],
             upgrade: false
         });
 
-        this.socketio.on("connect" , () => {
-             var client_id = document.getElementById("client_id").value;
-             console.log(`Client_id : ${client_id}`);
+        this.socketio.on("connect" , () => {            
+             
+
             console.log("connexion au serveur nodejs ... OK");
             console.log(`Environnement : ${that.env}`);
-            this.socketio.emit('setConfig', `${that.env}`,  `${client_id}`);
+            this.socketio.emit('setConfig', `${that.env}`, `${clientId}`);
             console.log("envoi de la configuration client au serveur nodejs ... OK");
 
             if(typeof that.onConnectionSuccessCallback === 'function') {
