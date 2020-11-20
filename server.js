@@ -24,8 +24,16 @@ const clients = [];
 let compteur = 0;
 module.exports.clients = clients;
 
+var corsOptions = {
+    origin: '*',
+    credentials: true 
+};
+
+//app.use(cors(corsOptions));
 
 app.use(cors());
+
+
 app.use(require('./src/routes/app-ajax'));
 app.use(require('./src/routes/app-router'));
 

@@ -11,11 +11,14 @@ var message = "power up: Ok\n";
 var datas = {var1:serveur, var2:message, var3:"test3", var4:"test4"};
 
 
+
+
 app.get('/',function(req, res) {
 
 	sess = req.session;
 	console.log("route /->" + sess.email);
     console.log("route /->" + sess.login);
+    res.header('Access-Control-Allow-Credentials', 'true');
     res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
     res.end(datas.var1 + "<br />" + datas.var2 + " session email:(" + sess.email + ") -  session login:(" + sess.login + ")");    
 
@@ -31,7 +34,7 @@ app.get('/welcome', (req, res) => {
     if(sess.email) {
         return res.redirect('/admin');
     }
-
+    res.header('Access-Control-Allow-Credentials', 'true');
     res.sendFile(path.resolve('loginForm.html'));
 });
 
@@ -41,7 +44,7 @@ app.post('/auth',(req,res) => {
    
     sess = req.session;
     sess.email = req.body.email;
-
+    res.header('Access-Control-Allow-Credentials', 'true');
     res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
     res.end('done');
 
@@ -51,6 +54,7 @@ app.post('/auth',(req,res) => {
 
 app.get('/admin',(req,res) => {
     sess = req.session;
+    res.header('Access-Control-Allow-Credentials', 'true');
     res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
    
     if(sess.email) {
@@ -72,6 +76,7 @@ app.get('/logout',(req,res) => {
         if(err) {
             return console.log(err);
         }
+        res.header('Access-Control-Allow-Credentials', 'true');
         res.redirect('/welcome');
     });
 
@@ -79,6 +84,7 @@ app.get('/logout',(req,res) => {
 
 
 app.get('/connect',function(req, res) {
+    res.header('Access-Control-Allow-Credentials', 'true');
     res.writeHead(200, {'Content-Type': 'text/html'});
     fs.readFile('clientnode/express01.html', function (err,data) {
         res.end(data);
@@ -88,6 +94,7 @@ app.get('/connect',function(req, res) {
 app.get('/hello/:name', function(req,res) {
     sess = req.session;
     var test = "ici";
+    res.header('Access-Control-Allow-Credentials', 'true');
     res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
     res.end(JSON.stringify({message: 'Hello ' + req.params.name + '!', emailSession:sess.email,  testRep:test}));
 });

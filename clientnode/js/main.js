@@ -185,6 +185,7 @@ mainScript.prototype.SetLoginSession = async function(login){
         var xhr=new XMLHttpRequest();
         var url = "http://127.0.0.1:1337/sessionuser/" + login;        
         var res = new Promise(function (resolve, reject) {
+        	xhr.withCredentials = false;
             xhr.open("GET",url);
             xhr.responseType = "json";
             xhr.send();
@@ -215,6 +216,7 @@ mainScript.prototype.SetStatutClient = async function(clientId, statut){
         var url = "http://127.0.0.1:1337/updatestatut/" + clientId + "/statut/" + statut;
 
         var res = new Promise(function (resolve, reject) {
+        	xhr.withCredentials = false;
             xhr.open("GET",url);
             xhr.responseType = "json";
             xhr.send();
@@ -242,6 +244,7 @@ mainScript.prototype.SetidclientSession = async function(socketid){
         var url = "http://127.0.0.1:1337/idclientsession/" + socketid;
 
         var res = new Promise(function (resolve, reject) {
+        	xhr.withCredentials = false;
             xhr.open("GET",url);
             xhr.responseType = "json";
             xhr.send();
@@ -269,6 +272,7 @@ mainScript.prototype.GetInfosClient = async function(clientId){
         var url = "http://127.0.0.1:1337/getinfosclient/" + clientId;
 
         var res = new Promise(function (resolve, reject) {
+        	xhr.withCredentials = false;
             xhr.open("GET",url);
             xhr.responseType = "json";
             xhr.send();
