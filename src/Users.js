@@ -8,11 +8,14 @@ module.exports = class Users
 {
 
     checkUser (nom){
+        
          return new Promise((resolve, reject) => {
-            database.query(`
+            let sql = `
                 SELECT u.* from user u where u.online = 0 AND u.nom = ?
                 
-            `,[nom], (error, result) => {
+            `;
+
+            database.query(sql,[nom], (error, result) => {
                 if(error) {
                     Logger.log('User', 'Erreur SQL lors de la selection du user : ' + error + ' SQL=' + error.sql, nom);
                     return reject(error);
@@ -150,7 +153,7 @@ module.exports = class Users
                 return resolve(clients);
             }
             else{
-                var error = "une valeurs est null";
+                var error = "setClients failed , user is null";
                 return reject(error);
             }        
         });

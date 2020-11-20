@@ -49,7 +49,6 @@ app.get('/sessionuser/:login',(req,res) => {
         if(results){            
 
             if( results.length !== 0){
-
                 sess.connect = 1;
                 user = results[0];     
             }
@@ -57,8 +56,8 @@ app.get('/sessionuser/:login',(req,res) => {
 
         return User.setClients(user);
     })
-    .catch(() => {
-        console.error('Do that');
+    .catch((err) => {
+        console.error('Err ' + err);
         error = 1;
     })
     .then((listClients) => {
@@ -127,22 +126,23 @@ app.post('/login',(req,res) => {
     sess.connect = 0;
     User.checkUser(req.body.email)
     .then((results) => {
+        
+
+    if( results.length !== 0){
         user = results[0];
-
-        if( results.length !== 0){
-            User.logActionInDatabase(user.id,"connexion");
-            
-            sess.email = req.body.email;
-            sess.connect = 1;
+        User.logActionInDatabase(user.id,"connexion");
 
 
-                User.setClients(user, client.id)
-                .then((listClients) => {
-                    sess.clients = listClients[client.id];
-                }); 
-          
-        } 
-        res.end('done');
+
+        User.setClients(user, client.id)
+        .then((listClients) => {
+            sess.clients = listClients[client.id];
+        }); 
+      
+    } 
+    res.end('done');
+
+
     });
 
     

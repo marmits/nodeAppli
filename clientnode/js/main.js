@@ -97,12 +97,14 @@ mainScript.prototype.affichage = function(idClient=null, datas={}, statut="off")
 };
     
 mainScript.prototype.bindLoginSubmit = function(){
+
     let that = this;
     let donnees = null;
-    var error = 0;
+   
     if(submit !== undefined){               
         if(submit !== undefined){ 
             submit.addEventListener('click', function(e){
+            	var error = 0;
                 e.stopPropagation();
                 e.preventDefault(); 
                 that.SetLoginSession(that.login.value)
@@ -122,6 +124,7 @@ mainScript.prototype.bindLoginSubmit = function(){
                 	}
                 })
                 .then((updateStatutClient) => {    
+
                 	if(error === 0){
 	                    if( updateStatutClient.updateOnline === "1"){          
 							      
