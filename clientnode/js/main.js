@@ -1,8 +1,6 @@
 var userConnect = {};
 var tabClients = [];
-let compteur = 0;
 var mainScript = function(){
-
     this.nodeJSclient = null;
     this.lien = document.getElementById('lien');
     this.resultat = document.querySelectorAll('div.resultat');
@@ -12,9 +10,6 @@ var mainScript = function(){
     this.idClientConnected = null;
     this.socketid = null;
 };
-
-
-
 
 mainScript.prototype.setElementVisibility = function(element,visible){
         if(typeof visible === "boolean" && element instanceof HTMLElement){
@@ -34,9 +29,10 @@ mainScript.prototype.init = function(){
     let that = this;
     that.setElementVisibility(that.main[0].querySelectorAll('div.deconnect')[0], false);
     that.bindLoginSubmit();
-    that.registerToNodeJsServer()
+    /*that.registerToNodeJsServer()
 	.then((okConnectSocketIO) => { 
-	});						    
+	});			
+	*/			    
 };    
 
 mainScript.prototype.registerToNodeJsServer = function() {
@@ -113,6 +109,7 @@ mainScript.prototype.bindLoginSubmit = function(){
                 .then((datasBdd) =>  {   
                     donnees = datasBdd;
                     that.idClientConnected = donnees.client.id;
+                    that.registerToNodeJsServer();
                     return  that.SetStatutClient(donnees.client.id, "1");
                 })
                 .then((updateStatutClient) => {    
@@ -126,8 +123,7 @@ mainScript.prototype.bindLoginSubmit = function(){
 						    //ici a chaque fois qu'un client se connecte                            
 						    var sortie = User.data.client.id + " " + User.data.client.infos.nom + " " + User.socketIdClient;
 						    var div = document.createElement("DIV");
-						    that.resultat[0].appendChild(div).innerHTML=sortie + " ONLINE";
-						    
+						    that.resultat[0].appendChild(div).innerHTML=sortie + " ONLINE";						   
 
 						});
 						if(deco !== undefined){
@@ -145,8 +141,6 @@ mainScript.prototype.bindLoginSubmit = function(){
 						        that.SetStatutClient(clientId, "0")
 						        .then((update) => {
 						            that.affichage(clientId, {}, "off");
-
-						            
 						        });
 
 						    }); 
@@ -157,40 +151,25 @@ mainScript.prototype.bindLoginSubmit = function(){
 						        e.preventDefault(); 
 						        var client = donnees.client;
 						        that.nodeJSclient.socketio.emit('clicklien', "ok", client);
-						        compteur++;
-
-						   		console.log(compteur);
 						        return false;
 						    });       
 						    that.nodeJSclient.socketio.on('clicklien', function(msg, client, socketID){                  
 						        var div = document.createElement("DIV");
 						        that.resultat[0].appendChild(div).innerHTML= socketID + " "  + msg + " id: " +  client.id + "nom: " + client.infos.nom; 
 						    });     
-						}
-
-													                    
+						}								                    
                     }
                 });
                 return false;                           
             });
         }
-        
-
-         
     }
 };
-
-
-
-
-
-
 
 mainScript.prototype.SetLoginSession = async function(login){
         
         var xhr=new XMLHttpRequest();
-        var url = "http://127.0.0.1:1337/sessionuser/" + login;
-        
+        var url = "http://127.0.0.1:1337/sessionuser/" + login;        
         var res = new Promise(function (resolve, reject) {
             xhr.open("GET",url);
             xhr.responseType = "json";
