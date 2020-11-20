@@ -32,7 +32,18 @@ class nodeJSclient {
             if(typeof that.onConnectionSuccessCallback === 'function') {
                 that.onConnectionSuccessCallback();
             }
-         });
+         }); 
+
+        this.socketio.on("coupe", (reason) => {
+            console.error(`Déconnexion du socket NodeJS : ${reason}`);
+            //this.disconnectServer();
+        });
+    }
+
+    disconnectServer()
+    {
+        
+        this.socketio.close();
     }
 
 

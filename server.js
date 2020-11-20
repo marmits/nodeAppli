@@ -72,11 +72,11 @@ io.on('connection', (socket) => {
 
 
 
-
-
   socket.on('connecton', (data) => { 
+    
+    let userOnline = null;
     let socketIdClient = client.socket.id;
-    let userOnline = {socketIdClient, data};
+    userOnline = {socketIdClient, data};
       io.emit('connecton', userOnline);
   });
 
@@ -96,8 +96,9 @@ io.on('connection', (socket) => {
           console.log(idClient, client.socket.id);
           io.emit('coupe',  client.socket.id, idClient);
           Logger.log("Déconnexion via click logout socket",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
+          client.socket.disconnect(true);
+          delete client.socket;
 
-      
         
       }
      
