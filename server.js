@@ -108,10 +108,16 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
       if(client.clientId !== null) {
         
-          Logger.log("Déconnexion socket",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
-
-          client.socket.disconnect(true);
-          delete client.socket;
+          
+          
+          
+              User.updateStatut(client.clientId, 0)
+              .then((results) => {
+                Logger.log("Déconnexion socket et BDD",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
+                client.socket.disconnect(true);
+                delete client.socket;   
+              })
+         
 
       }
   });

@@ -7,35 +7,35 @@ const configuration = require(`../config/${environment.jsonConfigFile}`);
 module.exports = class Users
 {
 
-	checkUser (nom){
-		 return new Promise((resolve, reject) => {
-		 	database.query(`
-                SELECT u.* from user u where u.nom = ?
+    checkUser (nom){
+         return new Promise((resolve, reject) => {
+            database.query(`
+                SELECT u.* from user u where u.online = 0 AND u.nom = ?
                 
             `,[nom], (error, result) => {
-            	if(error) {
+                if(error) {
                     Logger.log('User', 'Erreur SQL lors de la selection du user : ' + error + ' SQL=' + error.sql, nom);
                     return reject(error);
                 }
                 let user = [];
                 if(result.length > 0) {
-                	result.forEach((userResult) => {
-                		
-	                	user.push({
+                    result.forEach((userResult) => {
+                        
+                        user.push({
                             'id' : userResult.id,
-	                        'nom' : userResult.nom,
-	                        'pass' : userResult.pass,
-	                        'role' : userResult.role
-	                    });
-	                });
+                            'nom' : userResult.nom,
+                            'pass' : userResult.pass,
+                            'role' : userResult.role
+                        });
+                    });
 
                 }
                 
                 
                 return resolve(user); 
             });
-		 });
-	};
+         });
+    };
 
     getUserById (id){
          return new Promise((resolve, reject) => {
@@ -96,7 +96,7 @@ module.exports = class Users
          });
     };
 
-	async logActionInDatabase(user_id,action)
+    async logActionInDatabase(user_id,action)
     {
 
         try {
@@ -137,7 +137,9 @@ module.exports = class Users
     setClients(user){
         return new Promise((resolve, reject) => {
             let listClients = [];
-            if(user !== null) {
+
+            if(user.id !== undefined) {
+                
                 let clients = {};
 
                 clients.id = user.id;

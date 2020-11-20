@@ -38,30 +38,45 @@ app.get('/sessionuser/:login',(req,res) => {
     sess = req.session;  
     sess.login = req.params.login;
 
-    let client = {};
+    var user = {};
     const Users = require('../Users');
     const Client = require('../Client');
     const User = new Users();    
-    User.checkUser(sess.login)
+    var error = 0;
+    User.checkUser(sess.login)    
     .then((results) => {
-        user = results[0];  
-        if( results.length !== 0){
-            sess.connect = 1;
-            user = results[0];     
+
+        if(results){            
+
+            if( results.length !== 0){
+
+                sess.connect = 1;
+                user = results[0];     
+            }
         }
+
         return User.setClients(user);
+    })
+    .catch(() => {
+        console.error('Do that');
+        error = 1;
     })
     .then((listClients) => {
         tabClientsConnect.push(listClients);
-
-        clientData.id = listClients.id;
-        clientData.infos = {nom:listClients.nom, role:listClients.role};
+        if(error === 0){
+            clientData.id = listClients.id;
+            clientData.infos = {nom:listClients.nom, role:listClients.role};
+            
+            res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
+            res.end(JSON.stringify({connect: sess.connect,  client:clientData}));
+            Logger.log("Recup database ", `User pass: ${listClients.pass}`);     
+            Logger.log("click submit client de ", `User login: ${clientData.infos.nom}`); 
+            User.logActionInDatabase(listClients.id,"connexion");
+        } else {
+            res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
+            res.end(JSON.stringify({connect: 0,  client:{}}));
+        }
         
-        res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
-        res.end(JSON.stringify({connect: sess.connect,  client:clientData}));
-        Logger.log("Recup database ", `User pass: ${listClients.pass}`);     
-        Logger.log("click submit client de ", `User login: ${clientData.infos.nom}`); 
-        User.logActionInDatabase(listClients.id,"connexion")
     });
     
 });   
