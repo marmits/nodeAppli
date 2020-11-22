@@ -30,12 +30,12 @@ mainScript.prototype.init = function(){
     that.setElementVisibility(that.main[0].querySelectorAll('div.deconnect')[0], false);
     that.bindLoginSubmit();
     /*that.registerToNodeJsServer()
-	.then((okConnectSocketIO) => { 
-	});			
-	*/			    
+    .then((okConnectSocketIO) => { 
+    });         
+    */              
 };    
 
-mainScript.prototype.registerToNodeJsServer = function() {
+mainScript.prototype.registerToNodeJsServer = async function() {
         let that = this;
         var res = new Promise(function (resolve, reject) {
             
@@ -50,7 +50,6 @@ mainScript.prototype.registerToNodeJsServer = function() {
 };
 
 mainScript.prototype.affichage = function(idClient=null, datas={}, statut="off"){
-        
     let that = this;
     if(statut === "on"){
         if(that.main[0].querySelectorAll('span')[0]) {
@@ -73,110 +72,103 @@ mainScript.prototype.affichage = function(idClient=null, datas={}, statut="off")
             that.setElementVisibility(that.main[0].querySelectorAll('div.login')[0], false);
             
         }
-    } else {
-         
-        //chercher en fonction de idClient les infos du client qui se deconnecte pour affichage     
-        that.GetInfosClient(idClient)
-        .then((infosClientDeco) =>  {      
-            let nomClientDeco = infosClientDeco.results.nom;
-            var div = document.createElement("DIV");
-            that.resultat[0].appendChild(div).innerHTML=nomClientDeco + " est déconnecté";  
-            // pour gérer l'interface du client concerné
-            if(document.getElementById("client_id")){
-                if(idClient === parseInt(document.getElementById("client_id").value)){
-                    that.main[0].querySelectorAll('span')[0].remove();
-                    document.getElementById("client_id").remove();
-                    that.resultat[0].innerHTML="";
-                    that.setElementVisibility(that.main[0].querySelectorAll('div.deconnect')[0], false);
-                    that.setElementVisibility(that.main[0].querySelectorAll('div.login')[0], true);
-                    window.location.href = "/nodeAppli/clientnode/";
-                }
-            }
-        });
-    }       
+    } 
+return false;        
 };
     
 mainScript.prototype.bindLoginSubmit = function(){
 
     let that = this;
     let donnees = null;
-   
+    let client = null;
+    let clientId = null;
     if(submit !== undefined){               
         if(submit !== undefined){ 
             submit.addEventListener('click', function(e){
-            	var error = 0;
+                var error = 0;
                 e.stopPropagation();
                 e.preventDefault(); 
                 that.SetLoginSession(that.login.value)
-                .catch(() => {
-			        console.log('deja connecté');
-			        error = 1;
-			    })
+                
                 .then((datasBdd) =>  {   
-                    
-                    if(error === 1){
-                    	alert("deja connecté");                    	
-                    } else {
-	                    donnees = datasBdd;
-	                    that.idClientConnected = donnees.client.id;                    
-	                    that.registerToNodeJsServer()
-                        .then((OKserverNodejs) => {  
-                            return  that.SetStatutClient(donnees.client.id, "1");
-                        })
-                        .then((updateStatutClient) => {    
-
-                            if(error === 0){
-                                if( updateStatutClient.updateOnline === "1"){          
-                                          
-                                    that.nodeJSclient.socketio.emit('connecton',  donnees);
-
-                                    that.nodeJSclient.socketio.on('connecton', function(User){
-
-                                        that.affichage(null,donnees, "on");
-                                        //ici a chaque fois qu'un client se connecte                            
-                                        var sortie = User.data.client.id + " " + User.data.client.infos.nom + " " + User.socketIdClient;
-                                        var div = document.createElement("DIV");
-                                        that.resultat[0].appendChild(div).innerHTML=sortie + " ONLINE";                        
-
-                                    });
-                                    if(deco !== undefined){
-                                        deco.addEventListener('click', function(e){
-                                            e.stopPropagation();
-                                            e.preventDefault(); 
-                                            var clientId = donnees.client.id
-                                            compteur=0;
-                                            that.resultat[0].innerHTML="";
-                                            that.nodeJSclient.socketio.emit('coupe',  clientId);            
-                                            return false;                           
-                                        });
-                                        that.nodeJSclient.socketio.on('coupe', function( socketId, clientId){
-
-                                            that.SetStatutClient(clientId, "0")
-                                            .then((update) => {
-                                                console.log("ici");
-                                                that.affichage(clientId, {}, "off");
-                                            });
-
-                                        }); 
-                                    }
-                                    if(lien !== undefined){
-                                        lien.addEventListener('click', function(e){
-                                            e.stopPropagation();
-                                            e.preventDefault(); 
-                                            var client = donnees.client;
-                                            that.nodeJSclient.socketio.emit('clicklien', "ok", client);
-                                            return false;
-                                        });       
-                                        that.nodeJSclient.socketio.on('clicklien', function(msg, client, socketID){                  
-                                            var div = document.createElement("DIV");
-                                            that.resultat[0].appendChild(div).innerHTML= socketID + " "  + msg + " id: " +  client.id + "nom: " + client.infos.nom; 
-                                        });     
-                                    }                                                   
-                                }
-                            }
-                        });
-                	}
+                    donnees = datasBdd;
+                    that.idClientConnected = donnees.client.id;                    
+                    return that.registerToNodeJsServer();
                 })
+                .then((OKserverNodejs) => {  
+                    return that.SetStatutClient(donnees.client.id, "1");
+                })
+                .then((updateStatutClient) => {    
+                    
+                    if( updateStatutClient.updateOnline === "1"){          
+                              
+                        that.nodeJSclient.socketio.emit('connecton',  donnees);
+
+                        that.nodeJSclient.socketio.on('connecton', function(User){
+
+                            that.affichage(null,donnees, "on");
+                            //ici a chaque fois qu'un client se connecte                            
+                            var sortie = User.data.client.id + " " + User.data.client.infos.nom + " " + User.socketIdClient;
+                            var div = document.createElement("DIV");
+                            that.resultat[0].appendChild(div).innerHTML=sortie + " ONLINE";                        
+
+                        });
+
+                        if(deco !== undefined){
+                            deco.addEventListener('click', function(e){
+                                e.stopPropagation();
+                                e.preventDefault(); 
+                                clientId = donnees.client.id;
+                                compteur=0;
+                                that.resultat[0].innerHTML="";
+                                that.nodeJSclient.socketio.emit('coupe',  clientId);            
+                                                         
+                            });
+                        }
+                        if(lien !== undefined){
+                            lien.addEventListener('click', function(e){
+                                e.stopPropagation();
+                                e.preventDefault(); 
+                                client = donnees.client;
+                                that.nodeJSclient.socketio.emit('clicklien', "ok", client);
+                                return false;
+                            });                               
+                        }
+
+                        that.nodeJSclient.socketio.on('coupe', function( socketId, clientId, type){
+                                                         
+                            //chercher en fonction de idClient les infos du client qui se deconnecte pour affichage                                    
+                            that.GetInfosClient(clientId)
+                            
+                            .then((infosClientDeco) =>  { 
+                                if(document.getElementById("client_id")){      
+                                    if(infosClientDeco.results.id === parseInt(document.getElementById("client_id").value)){
+                                        // pour gérer l'interface du client concerné
+                                        window.location.href = "/nodeAppli/clientnode/"; 
+                                    }
+                                    else { 
+                                        
+                                        // pour les autres, broadcast pour informer de la déconnexion
+                                        var div = document.createElement("DIV");
+                                        that.resultat[0].appendChild(div).innerHTML=infosClientDeco.results.nom + " est déconnecté (" + type + ")";  
+                                    }
+                                } 
+                            });
+                        });     
+                        that.nodeJSclient.socketio.on('clicklien', function(msg, client, socketID){                  
+                            var div = document.createElement("DIV");
+                            that.resultat[0].appendChild(div).innerHTML= socketID + " "  + msg + " id: " +  client.id + "nom: " + client.infos.nom; 
+                        });                                                 
+                    }
+                    
+                })
+                .catch(() => {
+                    console.log('deja connecté');
+                    alert('deja connecté');
+                    error = 1;
+                });
+                    
+              
                 return false;                           
             });
         }
@@ -188,7 +180,7 @@ mainScript.prototype.SetLoginSession = async function(login){
         var xhr=new XMLHttpRequest();
         var url = "http://127.0.0.1:1337/sessionuser/" + login;        
         var res = new Promise(function (resolve, reject) {
-        	xhr.withCredentials = false;
+            xhr.withCredentials = false;
             xhr.open("GET",url);
             xhr.responseType = "json";
             xhr.send();
@@ -200,10 +192,10 @@ mainScript.prototype.SetLoginSession = async function(login){
                     let status = xhr.status;
                     let obj = JSON.parse(JSON.stringify(xhr.response));   
                     if(obj.connect === 1){
-                   		resolve(obj);
-                   	} else {
-                   		reject("deja connecté");
-                   	}
+                        resolve(obj);
+                    } else {
+                        reject("deja connecté");
+                    }
                 }
             };
             xhr.onerror = function(){
@@ -219,7 +211,7 @@ mainScript.prototype.SetStatutClient = async function(clientId, statut){
         var url = "http://127.0.0.1:1337/updatestatut/" + clientId + "/statut/" + statut;
 
         var res = new Promise(function (resolve, reject) {
-        	xhr.withCredentials = false;
+            xhr.withCredentials = false;
             xhr.open("GET",url);
             xhr.responseType = "json";
             xhr.send();
@@ -247,7 +239,7 @@ mainScript.prototype.SetidclientSession = async function(socketid){
         var url = "http://127.0.0.1:1337/idclientsession/" + socketid;
 
         var res = new Promise(function (resolve, reject) {
-        	xhr.withCredentials = false;
+            xhr.withCredentials = false;
             xhr.open("GET",url);
             xhr.responseType = "json";
             xhr.send();
@@ -275,7 +267,7 @@ mainScript.prototype.GetInfosClient = async function(clientId){
         var url = "http://127.0.0.1:1337/getinfosclient/" + clientId;
 
         var res = new Promise(function (resolve, reject) {
-        	xhr.withCredentials = false;
+            xhr.withCredentials = false;
             xhr.open("GET",url);
             xhr.responseType = "json";
             xhr.send();

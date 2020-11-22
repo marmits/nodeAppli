@@ -55,7 +55,7 @@ io.on('connection', (socket) => {
 
   let client = new Client();
   client.socket = socket;
-  
+  let typeCoupure = "auto";
 
    Logger.log(`Nouvelle connexion`,`Socket ${client.socket.id} connecté.`,client.socket);
 
@@ -92,25 +92,31 @@ io.on('connection', (socket) => {
   });
 
 
-  socket.on('coupe', (idClient) => {      
-    if(client.clientId !== null) {      
-        io.emit('coupe',  client.socket.id, idClient);
-        Logger.log("Déconnexion via click logout socket",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
-        client.socket.disconnect(true);
-        delete client.socket;
+  socket.on('coupe', () => {      
+    if(client.clientId !== null) {     
+        typeCoupure = "bouton déco";
+        User.updateStatut(client.clientId, 0)
+        .then((results) => { 
+          io.emit('coupe',  client.socket.id, client.clientId, typeCoupure);
+          Logger.log("Déconnexion via click logout socket",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
+          client.socket.disconnect(true);
+          delete client.socket;
+        });
     }     
   });
 
   // Le client a coupé le socket (changement de page, refresh, fermeture brutale etc ...)
   socket.on('disconnect', () => {
-    if(client.clientId !== null) {                
-      User.updateStatut(client.clientId, 0)
-      .then((results) => {
-        io.emit('coupe',  client.socket.id, client.clientId); // pour prevenir les autres clients que l'on est déconnecté
-        Logger.log("Déconnexion socket et BDD",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
-        client.socket.disconnect(true);
-        delete client.socket;   
-      });
+    if(typeCoupure === "auto"){
+      if(client.clientId !== null) {                
+        User.updateStatut(client.clientId, 0)
+        .then((results) => {
+          io.emit('coupe',  client.socket.id, client.clientId, typeCoupure); // pour prevenir les autres clients que l'on est déconnecté
+          Logger.log("Déconnexion socket et BDD",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
+          client.socket.disconnect(true);
+          delete client.socket;   
+        });
+      }
     }
   });
 
