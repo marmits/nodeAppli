@@ -119,61 +119,64 @@ mainScript.prototype.bindLoginSubmit = function(){
                     } else {
 	                    donnees = datasBdd;
 	                    that.idClientConnected = donnees.client.id;                    
-	                    that.registerToNodeJsServer();
-	                    return  that.SetStatutClient(donnees.client.id, "1");
+	                    that.registerToNodeJsServer()
+                        .then((OKserverNodejs) => {  
+                            return  that.SetStatutClient(donnees.client.id, "1");
+                        })
+                        .then((updateStatutClient) => {    
+
+                            if(error === 0){
+                                if( updateStatutClient.updateOnline === "1"){          
+                                          
+                                    that.nodeJSclient.socketio.emit('connecton',  donnees);
+
+                                    that.nodeJSclient.socketio.on('connecton', function(User){
+
+                                        that.affichage(null,donnees, "on");
+                                        //ici a chaque fois qu'un client se connecte                            
+                                        var sortie = User.data.client.id + " " + User.data.client.infos.nom + " " + User.socketIdClient;
+                                        var div = document.createElement("DIV");
+                                        that.resultat[0].appendChild(div).innerHTML=sortie + " ONLINE";                        
+
+                                    });
+                                    if(deco !== undefined){
+                                        deco.addEventListener('click', function(e){
+                                            e.stopPropagation();
+                                            e.preventDefault(); 
+                                            var clientId = donnees.client.id
+                                            compteur=0;
+                                            that.resultat[0].innerHTML="";
+                                            that.nodeJSclient.socketio.emit('coupe',  clientId);            
+                                            return false;                           
+                                        });
+                                        that.nodeJSclient.socketio.on('coupe', function( socketId, clientId){
+
+                                            that.SetStatutClient(clientId, "0")
+                                            .then((update) => {
+                                                console.log("ici");
+                                                that.affichage(clientId, {}, "off");
+                                            });
+
+                                        }); 
+                                    }
+                                    if(lien !== undefined){
+                                        lien.addEventListener('click', function(e){
+                                            e.stopPropagation();
+                                            e.preventDefault(); 
+                                            var client = donnees.client;
+                                            that.nodeJSclient.socketio.emit('clicklien', "ok", client);
+                                            return false;
+                                        });       
+                                        that.nodeJSclient.socketio.on('clicklien', function(msg, client, socketID){                  
+                                            var div = document.createElement("DIV");
+                                            that.resultat[0].appendChild(div).innerHTML= socketID + " "  + msg + " id: " +  client.id + "nom: " + client.infos.nom; 
+                                        });     
+                                    }                                                   
+                                }
+                            }
+                        });
                 	}
                 })
-                .then((updateStatutClient) => {    
-
-                	if(error === 0){
-	                    if( updateStatutClient.updateOnline === "1"){          
-							      
-							that.nodeJSclient.socketio.emit('connecton',  donnees);
-
-							that.nodeJSclient.socketio.on('connecton', function(User){
-
-							    that.affichage(null,donnees, "on");
-							    //ici a chaque fois qu'un client se connecte                            
-							    var sortie = User.data.client.id + " " + User.data.client.infos.nom + " " + User.socketIdClient;
-							    var div = document.createElement("DIV");
-							    that.resultat[0].appendChild(div).innerHTML=sortie + " ONLINE";						   
-
-							});
-							if(deco !== undefined){
-							    deco.addEventListener('click', function(e){
-							        e.stopPropagation();
-							        e.preventDefault(); 
-							        var clientId = donnees.client.id
-							        compteur=0;
-							        that.resultat[0].innerHTML="";
-							        that.nodeJSclient.socketio.emit('coupe',  clientId);            
-							        return false;                           
-							    });
-							    that.nodeJSclient.socketio.on('coupe', function( socketId, clientId){
-
-							        that.SetStatutClient(clientId, "0")
-							        .then((update) => {
-							            that.affichage(clientId, {}, "off");
-							        });
-
-							    }); 
-							}
-							if(lien !== undefined){
-							    lien.addEventListener('click', function(e){
-							        e.stopPropagation();
-							        e.preventDefault(); 
-							        var client = donnees.client;
-							        that.nodeJSclient.socketio.emit('clicklien', "ok", client);
-							        return false;
-							    });       
-							    that.nodeJSclient.socketio.on('clicklien', function(msg, client, socketID){                  
-							        var div = document.createElement("DIV");
-							        that.resultat[0].appendChild(div).innerHTML= socketID + " "  + msg + " id: " +  client.id + "nom: " + client.infos.nom; 
-							    });     
-							}								                    
-	                    }
-	                }
-                });
                 return false;                           
             });
         }
