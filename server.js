@@ -41,6 +41,7 @@ const {getClientById} = require('./src/utils/utils');
 
 const Users = require('./src/Users');
 const User = new Users();
+const Client = require('./src/Client');
 
 // On lance l'écoute du serveur NodeJS sur le port 8001
 let server = http.listen(1337, () => {
@@ -49,80 +50,80 @@ let server = http.listen(1337, () => {
     let host = server.address().address;
     let port = server.address().port;
     Logger.log("http.server(express)", `Le serveur NodeJS est démarré et écoute sur le port ${port}`);
-  });
+    io.on('connection', (socket) => {
+
+      let client = new Client();
+      client.socket = socket;
+      let typeCoupure = "auto";
+
+       Logger.log(`Nouvelle connexion`,`Socket ${client.socket.id} connecté.`,client.socket);
+
+      socket.on('setConfig', (data, _client_id) => { 
+        Logger.log("Environnement ", `${data}`);  
+        client.clientId = _client_id;
+        let connectedClient = getClientById(client.clientId);
+
+        if(connectedClient === undefined) {
+
+          Logger.log("Association socket <> client",`Socket ${client.socket.id} associé  au client id:  ${client.clientId}`, client.socket);          
+          clients.push(client);
+          compteur++;
+
+
+        } else {
+          Logger.log("Réassociation socket <> client",`Socket ${client.socket.id} associé au client id:  ${client.clientId}`, client.socket);
+          connectedClient.socket = socket;
+        }       
+      });
+
+
+      socket.on('connecton', (data) => {     
+        let userOnline = null;
+        let socketIdClient = client.socket.id;
+        userOnline = {socketIdClient, data};
+          io.emit('connecton', userOnline);
+      });
+
+
+      socket.on('clicklien', (data, client) => { 
+        Logger.log("click lien de ", `message: ${data} from ${socket.id} userId ${client.id} `); 
+        io.emit('clicklien', data, client, socket.id);
+      });
+
+
+      socket.on('coupe', () => {      
+        if(client.clientId !== null) {     
+            typeCoupure = "bouton déco";
+            User.updateStatut(client.clientId, 0)
+            .then((results) => { 
+              io.emit('coupe',  client.socket.id, client.clientId, typeCoupure);
+              Logger.log("Déconnexion via click logout socket",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
+              client.socket.disconnect(true);
+              delete client.socket;
+            });
+        }     
+      });
+
+      // Le client a coupé le socket (changement de page, refresh, fermeture brutale etc ...)
+      socket.on('disconnect', () => {
+        if(typeCoupure === "auto"){
+          if(client.clientId !== null) {                
+            User.updateStatut(client.clientId, 0)
+            .then((results) => {
+              io.emit('coupe',  client.socket.id, client.clientId, typeCoupure); // pour prevenir les autres clients que l'on est déconnecté
+              Logger.log("Déconnexion socket et BDD",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
+              client.socket.disconnect(true);
+              delete client.socket;   
+            });
+          }
+        }
+      });
+    });
+  }).catch((raison) => {
+      console.log(raison);
+  });   
 });
 
 
-const Client = require('./src/Client');
-
-io.on('connection', (socket) => {
-
-  let client = new Client();
-  client.socket = socket;
-  let typeCoupure = "auto";
-
-   Logger.log(`Nouvelle connexion`,`Socket ${client.socket.id} connecté.`,client.socket);
-
-  socket.on('setConfig', (data, _client_id) => { 
-    Logger.log("Environnement ", `${data}`);  
-    client.clientId = _client_id;
-    let connectedClient = getClientById(client.clientId);
-
-    if(connectedClient === undefined) {
-
-      Logger.log("Association socket <> client",`Socket ${client.socket.id} associé  au client id:  ${client.clientId}`, client.socket);          
-      clients.push(client);
-      compteur++;
 
 
-    } else {
-      Logger.log("Réassociation socket <> client",`Socket ${client.socket.id} associé au client id:  ${client.clientId}`, client.socket);
-      connectedClient.socket = socket;
-    }      	
-  });
-
-
-  socket.on('connecton', (data) => {     
-    let userOnline = null;
-    let socketIdClient = client.socket.id;
-    userOnline = {socketIdClient, data};
-      io.emit('connecton', userOnline);
-  });
-
-
-  socket.on('clicklien', (data, client) => { 
-    Logger.log("click lien de ", `message: ${data} from ${socket.id} userId ${client.id} `); 
-    io.emit('clicklien', data, client, socket.id);
-  });
-
-
-  socket.on('coupe', () => {      
-    if(client.clientId !== null) {     
-        typeCoupure = "bouton déco";
-        User.updateStatut(client.clientId, 0)
-        .then((results) => { 
-          io.emit('coupe',  client.socket.id, client.clientId, typeCoupure);
-          Logger.log("Déconnexion via click logout socket",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
-          client.socket.disconnect(true);
-          delete client.socket;
-        });
-    }     
-  });
-
-  // Le client a coupé le socket (changement de page, refresh, fermeture brutale etc ...)
-  socket.on('disconnect', () => {
-    if(typeCoupure === "auto"){
-      if(client.clientId !== null) {                
-        User.updateStatut(client.clientId, 0)
-        .then((results) => {
-          io.emit('coupe',  client.socket.id, client.clientId, typeCoupure); // pour prevenir les autres clients que l'on est déconnecté
-          Logger.log("Déconnexion socket et BDD",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
-          client.socket.disconnect(true);
-          delete client.socket;   
-        });
-      }
-    }
-  });
-
-
-});
