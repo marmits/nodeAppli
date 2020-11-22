@@ -7,6 +7,25 @@ const configuration = require(`../config/${environment.jsonConfigFile}`);
 module.exports = class Users
 {
 
+    async resetConnection (){
+        return new Promise((resolve, reject) => {
+            try {
+                let result = database.query({
+                    sql: `
+                        UPDATE user set online = 0 WHERE user.id > 0`
+                });
+                
+                resolve(result);
+            } catch(err) {
+                let message = `Erreur SQL lors de du reset connection user : ${err}`;
+                reject(message);
+                Logger.log('users', message);
+                return false;
+            }
+        });
+
+    };
+
     checkUser (nom){
         
          return new Promise((resolve, reject) => {

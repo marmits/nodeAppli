@@ -39,16 +39,20 @@ app.use(require('./src/routes/app-router'));
 
 const {getClientById} = require('./src/utils/utils');
 
+const Users = require('./src/Users');
+const User = new Users();
 
 // On lance l'écoute du serveur NodeJS sur le port 8001
 let server = http.listen(1337, () => {
+  User.resetConnection() // on remet le statut online à 0 pour tout le monde au lancemant de l'appli
+  .then((results) => { 
     let host = server.address().address;
     let port = server.address().port;
     Logger.log("http.server(express)", `Le serveur NodeJS est démarré et écoute sur le port ${port}`);
+  });
 });
 
-const Users = require('./src/Users');
-const User = new Users();
+
 const Client = require('./src/Client');
 
 io.on('connection', (socket) => {

@@ -59,7 +59,7 @@ mainScript.prototype.affichage = function(idClient=null, datas={}, statut="off")
 
             let input  = document.createElement("input");
             that.main[0].appendChild(input).setAttribute("id","client_id");
-            that.main[0].appendChild(input).setAttribute("type","text");                      
+            that.main[0].appendChild(input).setAttribute("type","hidden");                      
             document.getElementById("client_id").value =datas.client.id;
 
             let div = document.createElement("DIV");
