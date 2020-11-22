@@ -148,9 +148,9 @@ mainScript.prototype.bindLoginSubmit = function(){
                         });                                                 
                     }
                 })
-                .catch(() => {
-                    console.log('deja connecté');
-                    alert('deja connecté');
+                .catch((raison) => {
+                    console.log(raison);
+                    alert(raison);
                 });                                         
             });
         }
@@ -181,7 +181,7 @@ mainScript.prototype.SetLoginSession = async function(login){
             }
         };
         xhr.onerror = function(){
-            reject("la requête a echoué");
+            reject("connexion sql impossible, lancer nodejs");
         };
     });
     return res;    
@@ -208,7 +208,7 @@ mainScript.prototype.SetStatutClient = async function(clientId, statut){
             }
         };
         xhr.onerror = function(){
-            reject("la requête a echoué");
+            reject("set status client sql impossible");
         };
     });
     return res;    
@@ -261,7 +261,7 @@ mainScript.prototype.GetInfosClient = async function(clientId){
             }
         };
         xhr.onerror = function(){
-            reject("la requête a echoué");
+            reject("get infos clients sql impossible");
         };
     });
     return res;    
