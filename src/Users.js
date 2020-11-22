@@ -9,9 +9,7 @@ module.exports = class Users
 
     async resetConnection (){
         return new Promise((resolve, reject) => {
-           
             let sql = `UPDATE user set online = 0 WHERE user.id > 0`;
-            
             database.query(sql, (error, result) => {
                 if(error) {
                     Logger.log('User', 'Erreur SQL lors de du reset connection user: ' + error + ' SQL=' + error.sql);
@@ -23,13 +21,11 @@ module.exports = class Users
     };
 
     checkUser (nom){
-        
          return new Promise((resolve, reject) => {
             let sql = `
                 SELECT u.* from user u where u.online = 0 AND u.nom = ?
                 
             `;
-
             database.query(sql,[nom], (error, result) => {
                 if(error) {
                     Logger.log('User', 'Erreur SQL lors de la selection du user : ' + error + ' SQL=' + error.sql, nom);
@@ -46,10 +42,7 @@ module.exports = class Users
                             'role' : userResult.role
                         });
                     });
-
                 }
-                
-                
                 return resolve(user); 
             });
          });
@@ -57,18 +50,15 @@ module.exports = class Users
 
     getUserById (id){
          return new Promise((resolve, reject) => {
-            database.query(`
-                SELECT u.* from user u where u.id = ?
-                
-            `,[id], (error, result) => {
+            database.query(`SELECT u.* from user u where u.id = ?`
+                ,[id], (error, result) => {
                 if(error) {
                     Logger.log('User', 'Erreur SQL lors de la selection du user : ' + error + ' SQL=' + error.sql, nom);
                     return reject(error);
                 }
                 let user = {};
                 if(result.length > 0) {
-                    result.forEach((userResult) => {
-                        
+                    result.forEach((userResult) => { 
                         user = {
                             'id' : userResult.id,
                             'nom' : userResult.nom,
@@ -76,10 +66,7 @@ module.exports = class Users
                             'role' : userResult.role
                         };
                     });
-
-                }
-                
-                
+                }    
                 return resolve(user); 
             });
          });
@@ -96,8 +83,7 @@ module.exports = class Users
                 }
                 let user = [];
                 if(result.length > 0) {
-                    result.forEach((userResult) => {
-                        
+                    result.forEach((userResult) => { 
                         user.push({
                             'id' : userResult.id,
                             'nom' : userResult.nom,
@@ -105,10 +91,7 @@ module.exports = class Users
                             'role' : userResult.role
                         });
                     });
-
                 }
-                
-                
                 return resolve(user); 
             });
          });
@@ -116,7 +99,6 @@ module.exports = class Users
 
     async logActionInDatabase(user_id,action)
     {
-
         try {
             let result = await database.query({
                 sql: `
@@ -143,7 +125,6 @@ module.exports = class Users
                 sql: `
                     UPDATE user set online = ${statut} WHERE user.id = ${user_id}`
             });
-            
             return statut;
         } catch(err) {
             Logger.log('users', `Erreur SQL lors de l'insertion des logs : ${err}`,user_id);
@@ -155,16 +136,12 @@ module.exports = class Users
     setClients(user){
         return new Promise((resolve, reject) => {
             let listClients = [];
-
-            if(user.id !== undefined) {
-                
+            if(user.id !== undefined) {               
                 let clients = {};
-
                 clients.id = user.id;
                 clients.nom = user.nom;
                 clients.pass = user.pass;
                 clients.role = user.role;
-
                 return resolve(clients);
             }
             else{

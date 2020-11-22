@@ -39,12 +39,14 @@ app.use(require('./src/routes/app-router'));
 
 const {getClientById} = require('./src/utils/utils');
 
-const Users = require('./src/Users');
-const User = new Users();
-const Client = require('./src/Client');
+
+
 
 // On lance l'écoute du serveur NodeJS sur le port 8001
 let server = http.listen(1337, () => {
+  const Client = require('./src/Client');
+  const Users = require('./src/Users');
+  const User = new Users();
   User.resetConnection() // on remet le statut online à 0 pour tout le monde au lancemant de l'appli
   .then((results) => { 
     let host = server.address().address;
@@ -56,7 +58,7 @@ let server = http.listen(1337, () => {
       client.socket = socket;
       let typeCoupure = "auto";
 
-       Logger.log(`Nouvelle connexion`,`Socket ${client.socket.id} connecté.`,client.socket);
+      Logger.log(`Nouvelle connexion`,`Socket ${client.socket.id} connecté.`,client.socket);
 
       socket.on('setConfig', (data, _client_id) => { 
         Logger.log("Environnement ", `${data}`);  
@@ -118,6 +120,7 @@ let server = http.listen(1337, () => {
           }
         }
       });
+
     });
   }).catch((raison) => {
       console.log(raison);
