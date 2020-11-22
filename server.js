@@ -37,13 +37,10 @@ app.use(cors());
 app.use(require('./src/routes/app-ajax'));
 app.use(require('./src/routes/app-router'));
 
-const {getClientById} = require('./src/utils/utils');
-
-
-
 
 // On lance l'écoute du serveur NodeJS sur le port 8001
 let server = http.listen(1337, () => {
+  const {getClientById} = require('./src/utils/utils');
   const Client = require('./src/Client');
   const Users = require('./src/Users');
   const User = new Users();
