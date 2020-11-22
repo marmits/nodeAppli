@@ -11,20 +11,6 @@ var mainScript = function(){
     this.socketid = null;
 };
 
-mainScript.prototype.setElementVisibility = function(element,visible){
-        if(typeof visible === "boolean" && element instanceof HTMLElement){
-            if(visible === true){
-                if (element.classList.contains("hidden")){
-                    element.classList.remove("hidden");
-                }
-            }else{
-                if (!element.classList.contains("hidden")){
-                    element.classList.add("hidden");
-                }
-            }
-        }
-};
-
 mainScript.prototype.init = function(){
     let that = this;
     that.setElementVisibility(that.main[0].querySelectorAll('div.deconnect')[0], false);
@@ -33,20 +19,32 @@ mainScript.prototype.init = function(){
     .then((okConnectSocketIO) => { 
     });         
     */              
-};    
+}; 
+
+mainScript.prototype.setElementVisibility = function(element,visible){
+    if(typeof visible === "boolean" && element instanceof HTMLElement){
+        if(visible === true){
+            if (element.classList.contains("hidden")){
+                element.classList.remove("hidden");
+            }
+        }else{
+            if (!element.classList.contains("hidden")){
+                element.classList.add("hidden");
+            }
+        }
+    }
+};
 
 mainScript.prototype.registerToNodeJsServer = async function() {
-        let that = this;
-        var res = new Promise(function (resolve, reject) {
-            
-            that.nodeJSclient = new nodeJSclient();
-            // Connexion au serveur
-            resolve(that.nodeJSclient.connectServer(that.idClientConnected));                
-            reject("connection nodejs serveur impossible");          
+    let that = this;
+    var res = new Promise(function (resolve, reject) {   
+        that.nodeJSclient = new nodeJSclient();
+        // Connexion au serveur
+        resolve(that.nodeJSclient.connectServer(that.idClientConnected));                
+        reject("connection nodejs serveur impossible");          
 
-        });
-
-        return res;
+    });
+    return res;
 };
 
 mainScript.prototype.affichage = function(idClient=null, datas={}, statut="off"){
@@ -73,11 +71,10 @@ mainScript.prototype.affichage = function(idClient=null, datas={}, statut="off")
             
         }
     } 
-return false;        
+    return false;        
 };
     
 mainScript.prototype.bindLoginSubmit = function(){
-
     let that = this;
     let donnees = null;
     let client = null;
@@ -88,8 +85,7 @@ mainScript.prototype.bindLoginSubmit = function(){
                 var error = 0;
                 e.stopPropagation();
                 e.preventDefault(); 
-                that.SetLoginSession(that.login.value)
-                
+                that.SetLoginSession(that.login.value)          
                 .then((datasBdd) =>  {   
                     donnees = datasBdd;
                     that.idClientConnected = donnees.client.id;                    
@@ -100,18 +96,15 @@ mainScript.prototype.bindLoginSubmit = function(){
                 })
                 .then((updateStatutClient) => {    
                     
-                    if( updateStatutClient.updateOnline === "1"){          
-                              
+                    if( updateStatutClient.updateOnline === "1"){
+
                         that.nodeJSclient.socketio.emit('connecton',  donnees);
-
                         that.nodeJSclient.socketio.on('connecton', function(User){
-
                             that.affichage(null,donnees, "on");
                             //ici a chaque fois qu'un client se connecte                            
                             var sortie = User.data.client.id + " " + User.data.client.infos.nom + " " + User.socketIdClient;
                             var div = document.createElement("DIV");
                             that.resultat[0].appendChild(div).innerHTML=sortie + " ONLINE";                        
-
                         });
 
                         if(deco !== undefined){
@@ -135,8 +128,7 @@ mainScript.prototype.bindLoginSubmit = function(){
                             });                               
                         }
 
-                        that.nodeJSclient.socketio.on('coupe', function( socketId, clientId, type){
-                                                         
+                        that.nodeJSclient.socketio.on('coupe', function( socketId, clientId, type){                           
                             //chercher en fonction de idClient les infos du client qui se deconnecte pour affichage                                    
                             that.GetInfosClient(clientId)
                             
@@ -146,8 +138,7 @@ mainScript.prototype.bindLoginSubmit = function(){
                                         // pour gérer l'interface du client concerné
                                         window.location.href = "/nodeAppli/clientnode/"; 
                                     }
-                                    else { 
-                                        
+                                    else {                                        
                                         // pour les autres, broadcast pour informer de la déconnexion
                                         var div = document.createElement("DIV");
                                         that.resultat[0].appendChild(div).innerHTML=infosClientDeco.results.nom + " est déconnecté (" + type + ")";  
@@ -160,136 +151,128 @@ mainScript.prototype.bindLoginSubmit = function(){
                             that.resultat[0].appendChild(div).innerHTML= socketID + " "  + msg + " id: " +  client.id + "nom: " + client.infos.nom; 
                         });                                                 
                     }
-                    
                 })
                 .catch(() => {
                     console.log('deja connecté');
                     alert('deja connecté');
                     error = 1;
-                });
-                    
-              
-                return false;                           
+                });                                         
             });
         }
     }
+    return false;
 };
 
 mainScript.prototype.SetLoginSession = async function(login){
-        
-        var xhr=new XMLHttpRequest();
-        var url = "http://127.0.0.1:1337/sessionuser/" + login;        
-        var res = new Promise(function (resolve, reject) {
-            xhr.withCredentials = false;
-            xhr.open("GET",url);
-            xhr.responseType = "json";
-            xhr.send();
-            xhr.onload = function(){
-                if (xhr.status != 200){ 
-                    console.log("Erreur " + xhr.status + " : " + xhr.statusText);
-                }else{ 
-                    let datas = [];
-                    let status = xhr.status;
-                    let obj = JSON.parse(JSON.stringify(xhr.response));   
-                    if(obj.connect === 1){
-                        resolve(obj);
-                    } else {
-                        reject("deja connecté");
-                    }
+    var xhr=new XMLHttpRequest();
+    var url = "http://127.0.0.1:1337/sessionuser/" + login;        
+    var res = new Promise(function (resolve, reject) {
+        xhr.withCredentials = false;
+        xhr.open("GET",url);
+        xhr.responseType = "json";
+        xhr.send();
+        xhr.onload = function(){
+            if (xhr.status != 200){ 
+                console.log("Erreur " + xhr.status + " : " + xhr.statusText);
+            }else{ 
+                let datas = [];
+                let status = xhr.status;
+                let obj = JSON.parse(JSON.stringify(xhr.response));   
+                if(obj.connect === 1){
+                    resolve(obj);
+                } else {
+                    reject("deja connecté");
                 }
-            };
-            xhr.onerror = function(){
-                reject("la requête a echoué");
-            };
-        });
-        return res;    
+            }
+        };
+        xhr.onerror = function(){
+            reject("la requête a echoué");
+        };
+    });
+    return res;    
 };
 
-mainScript.prototype.SetStatutClient = async function(clientId, statut){
-        
-        var xhr=new XMLHttpRequest();
-        var url = "http://127.0.0.1:1337/updatestatut/" + clientId + "/statut/" + statut;
+mainScript.prototype.SetStatutClient = async function(clientId, statut){     
+    var xhr=new XMLHttpRequest();
+    var url = "http://127.0.0.1:1337/updatestatut/" + clientId + "/statut/" + statut;
 
-        var res = new Promise(function (resolve, reject) {
-            xhr.withCredentials = false;
-            xhr.open("GET",url);
-            xhr.responseType = "json";
-            xhr.send();
-            xhr.onload = function(){
-                if (xhr.status != 200){ 
-                    console.log("Erreur " + xhr.status + " : " + xhr.statusText);
-                }else{ 
-                    let datas = [];
-                    let status = xhr.status;
-                    let obj = JSON.parse(JSON.stringify(xhr.response));    
+    var res = new Promise(function (resolve, reject) {
+        xhr.withCredentials = false;
+        xhr.open("GET",url);
+        xhr.responseType = "json";
+        xhr.send();
+        xhr.onload = function(){
+            if (xhr.status != 200){ 
+                console.log("Erreur " + xhr.status + " : " + xhr.statusText);
+            }else{ 
+                let datas = [];
+                let status = xhr.status;
+                let obj = JSON.parse(JSON.stringify(xhr.response));    
 
-                    resolve(obj);
-                }
-            };
-            xhr.onerror = function(){
-                reject("la requête a echoué");
-            };
-        });
-        return res;    
+                resolve(obj);
+            }
+        };
+        xhr.onerror = function(){
+            reject("la requête a echoué");
+        };
+    });
+    return res;    
 };
 
-mainScript.prototype.SetidclientSession = async function(socketid){
-        
-        var xhr=new XMLHttpRequest();
-        var url = "http://127.0.0.1:1337/idclientsession/" + socketid;
+mainScript.prototype.SetidclientSession = async function(socketid){        
+    var xhr=new XMLHttpRequest();
+    var url = "http://127.0.0.1:1337/idclientsession/" + socketid;
 
-        var res = new Promise(function (resolve, reject) {
-            xhr.withCredentials = false;
-            xhr.open("GET",url);
-            xhr.responseType = "json";
-            xhr.send();
-            xhr.onload = function(){
-                if (xhr.status != 200){ 
-                    console.log("Erreur " + xhr.status + " : " + xhr.statusText);
-                }else{ 
-                    let datas = [];
-                    let status = xhr.status;
-                    let obj = JSON.parse(JSON.stringify(xhr.response));    
+    var res = new Promise(function (resolve, reject) {
+        xhr.withCredentials = false;
+        xhr.open("GET",url);
+        xhr.responseType = "json";
+        xhr.send();
+        xhr.onload = function(){
+            if (xhr.status != 200){ 
+                console.log("Erreur " + xhr.status + " : " + xhr.statusText);
+            }else{ 
+                let datas = [];
+                let status = xhr.status;
+                let obj = JSON.parse(JSON.stringify(xhr.response));    
 
-                    resolve(obj);
-                }
-            };
-            xhr.onerror = function(){
-                reject("la requête a echoué");
-            };
-        });
-        return res;    
+                resolve(obj);
+            }
+        };
+        xhr.onerror = function(){
+            reject("la requête a echoué");
+        };
+    });
+    return res;    
 };
 
-mainScript.prototype.GetInfosClient = async function(clientId){
-        
-        var xhr=new XMLHttpRequest();
-        var url = "http://127.0.0.1:1337/getinfosclient/" + clientId;
+mainScript.prototype.GetInfosClient = async function(clientId){   
+    var xhr=new XMLHttpRequest();
+    var url = "http://127.0.0.1:1337/getinfosclient/" + clientId;
 
-        var res = new Promise(function (resolve, reject) {
-            xhr.withCredentials = false;
-            xhr.open("GET",url);
-            xhr.responseType = "json";
-            xhr.send();
-            xhr.onload = function(){
-                if (xhr.status != 200){ 
-                    console.log("Erreur " + xhr.status + " : " + xhr.statusText);
-                }else{ 
-                    let datas = [];
-                    let status = xhr.status;
-                    let obj = JSON.parse(JSON.stringify(xhr.response));                        
-                    resolve(obj);
-                }
-            };
-            xhr.onerror = function(){
-                reject("la requête a echoué");
-            };
-        });
-        return res;    
+    var res = new Promise(function (resolve, reject) {
+        xhr.withCredentials = false;
+        xhr.open("GET",url);
+        xhr.responseType = "json";
+        xhr.send();
+        xhr.onload = function(){
+            if (xhr.status != 200){ 
+                console.log("Erreur " + xhr.status + " : " + xhr.statusText);
+            }else{ 
+                let datas = [];
+                let status = xhr.status;
+                let obj = JSON.parse(JSON.stringify(xhr.response));                        
+                resolve(obj);
+            }
+        };
+        xhr.onerror = function(){
+            reject("la requête a echoué");
+        };
+    });
+    return res;    
 };
 
 
 var app = new mainScript();
-
 app.init();
 
