@@ -4,7 +4,6 @@ var mainScript = function(){
     this.nodeJSclient = null;
     this.lien = document.getElementById('lien');
     this.resultat = document.querySelectorAll('div.resultat');
-    this.gauche = document.querySelectorAll('div.gauche');
     this.main = document.querySelectorAll('div.main');
     this.login =  document.getElementById("login");
     this.idClientConnected = null;
@@ -37,7 +36,7 @@ mainScript.prototype.setElementVisibility = function(element,visible){
 
 mainScript.prototype.registerToNodeJsServer = async function() {
     let that = this;
-    var res = new Promise(function (resolve, reject) {   
+    let res = new Promise(function (resolve, reject) {   
         that.nodeJSclient = new nodeJSclient();
         // Connexion au serveur
         resolve(that.nodeJSclient.connectServer(that.idClientConnected));                
@@ -53,17 +52,17 @@ mainScript.prototype.affichage = function(idClient=null, datas={}, statut="off")
         if(that.main[0].querySelectorAll('span')[0]) {
         
         } else {
-            var span = document.createElement("SPAN");
+            let span = document.createElement("SPAN");
             that.main[0].appendChild(span).innerHTML = "";
             that.main[0].querySelectorAll('span')[0].innerHTML = datas.client.infos.nom;
             
 
-            var input  = document.createElement("input");
+            let input  = document.createElement("input");
             that.main[0].appendChild(input).setAttribute("id","client_id");
             that.main[0].appendChild(input).setAttribute("type","text");                      
             document.getElementById("client_id").value =datas.client.id;
 
-            var div = document.createElement("DIV");
+            let div = document.createElement("DIV");
             that.resultat[0].appendChild(div).innerHTML=datas.client.id + " " + datas.client.infos.nom + " " + datas.client.infos.role + " connecté"; 
             
             that.setElementVisibility(that.main[0].querySelectorAll('div.deconnect')[0], true);
@@ -82,11 +81,10 @@ mainScript.prototype.bindLoginSubmit = function(){
     if(submit !== undefined){               
         if(submit !== undefined){ 
             submit.addEventListener('click', function(e){
-                var error = 0;
                 e.stopPropagation();
                 e.preventDefault(); 
                 that.SetLoginSession(that.login.value)          
-                .then((datasBdd) =>  {   
+                .then((datasBdd) =>  {
                     donnees = datasBdd;
                     that.idClientConnected = donnees.client.id;                    
                     return that.registerToNodeJsServer();
@@ -94,16 +92,15 @@ mainScript.prototype.bindLoginSubmit = function(){
                 .then((OKserverNodejs) => {  
                     return that.SetStatutClient(donnees.client.id, "1");
                 })
-                .then((updateStatutClient) => {    
-                    
+                .then((updateStatutClient) => {
                     if( updateStatutClient.updateOnline === "1"){
 
                         that.nodeJSclient.socketio.emit('connecton',  donnees);
                         that.nodeJSclient.socketio.on('connecton', function(User){
                             that.affichage(null,donnees, "on");
                             //ici a chaque fois qu'un client se connecte                            
-                            var sortie = User.data.client.id + " " + User.data.client.infos.nom + " " + User.socketIdClient;
-                            var div = document.createElement("DIV");
+                            let sortie = User.data.client.id + " " + User.data.client.infos.nom + " " + User.socketIdClient;
+                            let div = document.createElement("DIV");
                             that.resultat[0].appendChild(div).innerHTML=sortie + " ONLINE";                        
                         });
 
@@ -130,8 +127,7 @@ mainScript.prototype.bindLoginSubmit = function(){
 
                         that.nodeJSclient.socketio.on('coupe', function( socketId, clientId, type){                           
                             //chercher en fonction de idClient les infos du client qui se deconnecte pour affichage                                    
-                            that.GetInfosClient(clientId)
-                            
+                            that.GetInfosClient(clientId)                        
                             .then((infosClientDeco) =>  { 
                                 if(document.getElementById("client_id")){      
                                     if(infosClientDeco.results.id === parseInt(document.getElementById("client_id").value)){
@@ -140,14 +136,14 @@ mainScript.prototype.bindLoginSubmit = function(){
                                     }
                                     else {                                        
                                         // pour les autres, broadcast pour informer de la déconnexion
-                                        var div = document.createElement("DIV");
+                                        let div = document.createElement("DIV");
                                         that.resultat[0].appendChild(div).innerHTML=infosClientDeco.results.nom + " est déconnecté (" + type + ")";  
                                     }
                                 } 
                             });
                         });     
                         that.nodeJSclient.socketio.on('clicklien', function(msg, client, socketID){                  
-                            var div = document.createElement("DIV");
+                            let div = document.createElement("DIV");
                             that.resultat[0].appendChild(div).innerHTML= socketID + " "  + msg + " id: " +  client.id + "nom: " + client.infos.nom; 
                         });                                                 
                     }
@@ -155,7 +151,6 @@ mainScript.prototype.bindLoginSubmit = function(){
                 .catch(() => {
                     console.log('deja connecté');
                     alert('deja connecté');
-                    error = 1;
                 });                                         
             });
         }
@@ -164,9 +159,9 @@ mainScript.prototype.bindLoginSubmit = function(){
 };
 
 mainScript.prototype.SetLoginSession = async function(login){
-    var xhr=new XMLHttpRequest();
-    var url = "http://127.0.0.1:1337/sessionuser/" + login;        
-    var res = new Promise(function (resolve, reject) {
+    let xhr=new XMLHttpRequest();
+    let url = "http://127.0.0.1:1337/sessionuser/" + login;        
+    let res = new Promise(function (resolve, reject) {
         xhr.withCredentials = false;
         xhr.open("GET",url);
         xhr.responseType = "json";
@@ -192,11 +187,11 @@ mainScript.prototype.SetLoginSession = async function(login){
     return res;    
 };
 
-mainScript.prototype.SetStatutClient = async function(clientId, statut){     
-    var xhr=new XMLHttpRequest();
-    var url = "http://127.0.0.1:1337/updatestatut/" + clientId + "/statut/" + statut;
+mainScript.prototype.SetStatutClient = async function(clientId, statut){
+    let xhr=new XMLHttpRequest();
+    let url = "http://127.0.0.1:1337/updatestatut/" + clientId + "/statut/" + statut;
 
-    var res = new Promise(function (resolve, reject) {
+    let res = new Promise(function (resolve, reject) {
         xhr.withCredentials = false;
         xhr.open("GET",url);
         xhr.responseType = "json";
@@ -219,11 +214,11 @@ mainScript.prototype.SetStatutClient = async function(clientId, statut){
     return res;    
 };
 
-mainScript.prototype.SetidclientSession = async function(socketid){        
-    var xhr=new XMLHttpRequest();
-    var url = "http://127.0.0.1:1337/idclientsession/" + socketid;
+mainScript.prototype.SetidclientSession = async function(socketid){
+    let xhr=new XMLHttpRequest();
+    let url = "http://127.0.0.1:1337/idclientsession/" + socketid;
 
-    var res = new Promise(function (resolve, reject) {
+    let res = new Promise(function (resolve, reject) {
         xhr.withCredentials = false;
         xhr.open("GET",url);
         xhr.responseType = "json";
@@ -246,11 +241,11 @@ mainScript.prototype.SetidclientSession = async function(socketid){
     return res;    
 };
 
-mainScript.prototype.GetInfosClient = async function(clientId){   
-    var xhr=new XMLHttpRequest();
-    var url = "http://127.0.0.1:1337/getinfosclient/" + clientId;
+mainScript.prototype.GetInfosClient = async function(clientId){
+    let xhr=new XMLHttpRequest();
+    let url = "http://127.0.0.1:1337/getinfosclient/" + clientId;
 
-    var res = new Promise(function (resolve, reject) {
+    let res = new Promise(function (resolve, reject) {
         xhr.withCredentials = false;
         xhr.open("GET",url);
         xhr.responseType = "json";
