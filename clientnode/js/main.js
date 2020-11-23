@@ -5,6 +5,7 @@ var mainScript = function(){
     this.lien = document.getElementById('lien');
     this.resultat = document.querySelectorAll('div.resultat');
     this.main = document.querySelectorAll('div.main');
+    this.gauche = document.querySelectorAll('div.gauche');
     this.login =  document.getElementById("login");
     this.idClientConnected = null;
     this.socketid = null;
@@ -32,6 +33,15 @@ mainScript.prototype.setElementVisibility = function(element,visible){
             }
         }
     }
+};
+
+mainScript.prototype.setElementHTML = function(element,visible){
+	let that = this;
+	let a = document.createElement("A");      
+	that.gauche[0].prepend(a);  
+	a.setAttribute("href", "#");
+	a.setAttribute("id","lien");
+	a.innerHTML = "Client envoi pour nodejs";
 };
 
 mainScript.prototype.registerToNodeJsServer = async function() {
@@ -67,6 +77,8 @@ mainScript.prototype.affichage = function(idClient=null, datas={}, statut="off")
             
             that.setElementVisibility(that.main[0].querySelectorAll('div.deconnect')[0], true);
             that.setElementVisibility(that.main[0].querySelectorAll('div.login')[0], false);
+
+			
             
         }
     } 
@@ -83,6 +95,7 @@ mainScript.prototype.bindLoginSubmit = function(){
             submit.addEventListener('click', function(e){
                 e.stopPropagation();
                 e.preventDefault(); 
+                
                 that.SetLoginSession(that.login.value)          
                 .then((datasBdd) =>  {
                     donnees = datasBdd;
@@ -90,18 +103,22 @@ mainScript.prototype.bindLoginSubmit = function(){
                     return that.registerToNodeJsServer();
                 })
                 .then((OKserverNodejs) => {  
+
                     return that.SetStatutClient(donnees.client.infos.id, "1");
                 })
                 .then((updateStatutClient) => {
                     if( updateStatutClient.updateOnline === "1"){
 
+                    	
+                    	that.setElementHTML();
                         that.nodeJSclient.socketio.emit('connecton',  donnees);
                         that.nodeJSclient.socketio.on('connecton', function(User){
                             that.affichage(null,donnees, "on");
                             //ici a chaque fois qu'un client se connecte                            
                             let sortie = User.data.client.infos.id + " " + User.data.client.infos.nom + " " + User.socketIdClient;
                             let div = document.createElement("DIV");
-                            that.resultat[0].appendChild(div).innerHTML=sortie + " ONLINE";                        
+                            that.resultat[0].appendChild(div).innerHTML=sortie + " ONLINE";                               
+
                         });
 
                         if(deco !== undefined){
