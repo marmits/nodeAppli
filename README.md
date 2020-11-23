@@ -2,13 +2,12 @@
 use socket.io client/server  
 [https://github.com/socketio/socket.io](https://github.com/socketio/socket.io)
 
- Test nodejs socketio broadcast
- mysql import nodeappli.sql
-
+Test nodejs socketio
 
 # instructions
-npm install (package.json) 
+npm install (package.json)  
 npm start  
+
 grunt watch -> sass 
 
 
