@@ -1,0 +1,93 @@
+html {
+  height: 100%;
+}
+
+body {
+  line-height: 1;
+  color: #FFF;
+  background-color: #000;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  min-height: calc(100% - 2em);
+  font-size: 1em;
+}
+
+h1 {
+  font-weight: bold;
+  padding: 2em 2em 2em 1em;
+  text-align: left;
+}
+
+p {
+  text-align: left;
+  padding: 0 1em 1em 1em;
+}
+
+a, a:active, a:hover, a:visited, a:link {
+  text-decoration: underline;
+  color: #FFF;
+}
+
+ol, ul {
+  padding: 0 0 0 2em;
+}
+ol li, ul li {
+  text-align: left;
+}
+
+div.container {
+  position: relative;
+  padding: 1em;
+}
+div.container div.gauche {
+  width: 25%;
+  float: left;
+}
+div.container div.gauche.hidden {
+  display: none;
+}
+div.container div.gauche ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+div.container div.gauche ul li {
+  display: block;
+  float: left;
+  width: 100%;
+  text-align: left;
+}
+div.container div.gauche ul li a {
+  color: #999;
+}
+div.container div.gauche ul li a.active {
+  color: #FFF;
+}
+div.container div.main {
+  width: 75%;
+  float: left;
+  height: auto;
+  position: relative;
+}
+div.container div.main div.login.hidden {
+  display: none;
+}
+div.container div.main div.login ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+div.container div.main div.login ul li {
+  display: inline-block;
+  float: none;
+  width: 100%;
+  padding: 0 0 0.6em 0;
+}
+div.container div.main div.login ul li label {
+  display: block;
+  width: 4em;
+}
+div.container div.main div.deconnect.hidden {
+  display: none;
+}
+
+/*# sourceMappingURL=style.css.map */

@@ -1,0 +1,43 @@
+{
+  "name": "nodeappli",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js -devmode -something 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marmits/nodeAppli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/marmits/nodeAppli/issues"
+  },
+  "homepage": "https://github.com/marmits/nodeAppli#readme",
+  "description": "",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "chalk": "^4.1.0",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "express-socket.io-session": "^1.3.5",
+    "grunt-sass": "^3.1.0",
+    "handlebars": "^4.7.6",
+    "moment": "^2.29.1",
+    "mysql": "^2.18.1",
+    "node-sass": "^4.14.1",
+    "session-file-store": "^1.5.0",
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6",
+    "grunt": "^1.3.0",
+    "grunt-contrib-sass": "^2.0.0",
+    "grunt-contrib-watch": "*",
+    "sass": "^1.27.0"
+  }
+}
