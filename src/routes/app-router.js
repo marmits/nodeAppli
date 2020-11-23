@@ -95,7 +95,7 @@ app.get('/welcome', (req, res) => {
         return res.redirect('/admin');
     }
     res.header('Access-Control-Allow-Credentials', 'true');
-    res.sendFile(path.resolve('createCount.html'));
+    res.sendFile(path.resolve('loginForm.html'));
 });
 
 
