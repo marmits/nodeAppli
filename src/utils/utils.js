@@ -55,8 +55,34 @@ function removeClient(agent_id)
     })
 }
 
+function deconnectClient(User, io, client, typeCoupure){
+
+    let message = "";
+    if(typeCoupure === "auto"){
+        message = "Déconnexion socket et BDD auto";
+    } else if(typeCoupure === "bouton déco"){
+        message = "Déconnexion socket et BDD via click logout socket";
+    }
+    User.updateStatut(client.clientId, 0)
+    .then((results) => {
+        let clientData = {infos:{id:client.clientId}};
+        return User.logActionInDatabase(clientData,"déconnexion");
+    })
+    .then(() => {
+        io.emit('coupe',  client.socket.id, client.clientId, typeCoupure); // pour prevenir les autres clients que l'on est déconnecté
+        Logger.log(message,`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
+        client.socket.disconnect(true);
+        delete client.socket;   
+    })
+    .catch((err) => {        
+        console.error('Err ' + err);
+    });
+    
+}
+
 module.exports = {
     getClientById,
     verifyRequestParameters,
-    removeClient
+    removeClient,
+    deconnectClient
 };

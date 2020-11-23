@@ -42,6 +42,8 @@ module.exports = class Users
                             'role' : userResult.role
                         });
                     });
+                } else {
+                    reject("Utilisateur inconnu ou déja connecté");
                 }
                 return resolve(user); 
             });
@@ -94,50 +96,63 @@ module.exports = class Users
                 }
                 return resolve(user); 
             });
+
          });
     };
 
-    async logActionInDatabase(user_id,action)
+    async logActionInDatabase(clientData,action)
     {
-        try {
-            let result = await database.query({
-                sql: `
-                    INSERT INTO logs (id_client,date,action)
-                    VALUE (?,?,?)`,
-                values: [
-                    user_id,
-                    Moment().format("YYYY-MM-DD HH:mm:ss"),
-                    action
-                ]
-            });
-            return result.affectedRows;
-        } catch(err) {
-            Logger.log('users', `Erreur SQL lors de l'insertion des logs : ${err}`,user_id);
-            return false;
-        }
+        let user_id = clientData.infos.id;
+        return new Promise((resolve, reject) => {
+          
+                database.query({
+                    sql: `
+                        INSERT INTO logs (id_client,date,action)
+                        VALUE (?,?,?)`,
+                    values: [
+                        user_id,
+                        Moment().format("YYYY-MM-DD HH:mm:ss"),
+                        action
+                    ]
+                }, (error, result) => {
+
+                    if(error) {
+                        Logger.log('users', `Erreur SQL lors de l'insertion des logs : ${error}`,user_id);
+                        return reject(error);
+                    }
+
+                });
+                return resolve(clientData);
+            /*} catch(err) {
+                Logger.log('users', `Erreur SQL lors de l'insertion des logs : ${err}`,user_id);
+                return false;
+            }*/
+        });
     };
 
     async updateStatut(user_id,statut)
     {
-        //*UPDATE `user` SET `online` = '1' WHERE `user`.`id` = 1; */
-        try {
-            let result = await database.query({
+        return new Promise((resolve, reject) => {        
+            database.query({
                 sql: `
                     UPDATE user set online = ${statut} WHERE user.id = ${user_id}`
-            });
-            return statut;
-        } catch(err) {
-            Logger.log('users', `Erreur SQL lors de l'insertion des logs : ${err}`,user_id);
-            return false;
-        }
+            }, (error, result) => {
+
+                if(error) {
+                    Logger.log('users', `Erreur SQL lors de l'insertion des logs : ${error}`,user_id);
+                    return reject(error);
+                }
+                 return resolve(statut); 
+            });                   
+         });
     };
 
     // via client socketio
     setClients(user){
         return new Promise((resolve, reject) => {
-            let listClients = [];
+            let clients = {};
             if(user.id !== undefined) {               
-                let clients = {};
+                
                 clients.id = user.id;
                 clients.nom = user.nom;
                 clients.pass = user.pass;
@@ -145,7 +160,7 @@ module.exports = class Users
                 return resolve(clients);
             }
             else{
-                var error = "setClients failed , user is null";
+                var error = "setClients failed , user is undefined";
                 return reject(error);
             }        
         });

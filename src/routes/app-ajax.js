@@ -18,39 +18,31 @@ app.get('/sessionuser/:login',(req,res) => {
     const Users = require('../Users');
     const Client = require('../Client');
     const User = new Users();    
-    var error = 0;
     User.checkUser(sess.login)    
     .then((results) => {
-
         if(results){            
-
             if( results.length !== 0){
                 sess.connect = 1;
                 user = results[0];     
             }
         }
-
         return User.setClients(user);
+    })    
+    .then((listClients) => {       
+        //clientData.id = listClients.id;
+        clientData.infos = {id:listClients.id, nom:listClients.nom, role:listClients.role, pass:listClients.pass};
+        return User.logActionInDatabase(clientData,"connexion");
     })
-    .catch((err) => {
+    .then((clientData) => {
+        Logger.log("Recup database ", `User pass: ${clientData.infos.pass}`);     
+        Logger.log("click submit client de ", `User login: ${clientData.infos.nom}`); 
+        res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
+        res.end(JSON.stringify({connect: 1,  client:clientData}));
+    })
+    .catch((err) => {        
         console.error('Err ' + err);
-        error = 1;
-    })
-    .then((listClients) => {
-        if(error === 0){
-            clientData.id = listClients.id;
-            clientData.infos = {nom:listClients.nom, role:listClients.role};
-            
-            res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
-            res.end(JSON.stringify({connect: sess.connect,  client:clientData}));
-            Logger.log("Recup database ", `User pass: ${listClients.pass}`);     
-            Logger.log("click submit client de ", `User login: ${clientData.infos.nom}`); 
-            User.logActionInDatabase(listClients.id,"connexion");
-        } else {
-            res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
-            res.end(JSON.stringify({connect: 0,  client:{}}));
-        }
-        
+        res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
+        res.end(JSON.stringify({connect: 0,  message:err}));
     });
     
 });   
@@ -61,9 +53,13 @@ app.get('/getinfosclient/:clientId',(req,res) => {
     User.getUserById(req.params.clientId)
     .then((results) => {
         res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
-        res.end(JSON.stringify({results: results}));
+        res.end(JSON.stringify({error:0, results: results}));
     })
-
+    .catch((err) => {
+        console.error('Err ' + err);
+        res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
+        res.end(JSON.stringify({error:1, message:err}));
+    });
 });  
 
 
@@ -82,12 +78,15 @@ app.get('/updatestatut/:userid/statut/:statut',(req,res) => {
             return User.onlineUser();  
         }      
     })
-    .then((usersOnline) => {
-        
+    .then((usersOnline) => {        
         res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
-        res.end(JSON.stringify({usersOnline: usersOnline, updateOnline:updateOnline})); 
-    });
-    
+        res.end(JSON.stringify({error:0, usersOnline: usersOnline, updateOnline:updateOnline})); 
+    })
+    .catch((err) => {
+        console.error('Err ' + err);
+        res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
+        res.end(JSON.stringify({error:1,message:err}));
+    });    
 });    
 
 

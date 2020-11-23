@@ -8,6 +8,14 @@ const bodyParser = require('body-parser');
 var sharedsession = require("express-socket.io-session");
 
 
+cleanUpServer = function(val) {
+  console.log(val + ' App specific cleanup code...');
+};
+[`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((eventType) => {
+  //process.on(eventType, cleanUpServer.bind(null, eventType));
+});
+
+
 app.use(session({secret: 'ssshhhhh',saveUninitialized: true,resave: true}));
 app.use(bodyParser.json());      
 app.use(bodyParser.urlencoded({extended: true}));
@@ -40,7 +48,7 @@ app.use(require('./src/routes/app-router'));
 
 // On lance l'écoute du serveur NodeJS sur le port 8001
 let server = http.listen(1337, () => {
-  const {getClientById} = require('./src/utils/utils');
+  const {getClientById, deconnectClient:decoC} = require('./src/utils/utils');
   const Client = require('./src/Client');
   const Users = require('./src/Users');
   const User = new Users();
@@ -64,10 +72,11 @@ let server = http.listen(1337, () => {
 
         if(connectedClient === undefined) {
 
-          Logger.log("Association socket <> client",`Socket ${client.socket.id} associé  au client id:  ${client.clientId}`, client.socket);          
+          Logger.log("Association socket <> client",`Socket ${client.socket.id} associé  au client id:  ${client.clientId}`, client.socket);    
+
+          
           clients.push(client);
           compteur++;
-
 
         } else {
           Logger.log("Réassociation socket <> client",`Socket ${client.socket.id} associé au client id:  ${client.clientId}`, client.socket);
@@ -85,7 +94,7 @@ let server = http.listen(1337, () => {
 
 
       socket.on('clicklien', (data, client) => { 
-        Logger.log("click lien de ", `message: ${data} from ${socket.id} userId ${client.id} `); 
+        Logger.log("click lien de ", `message: ${data} from ${socket.id} userId ${client.infos.id} `); 
         io.emit('clicklien', data, client, socket.id);
       });
 
@@ -93,27 +102,15 @@ let server = http.listen(1337, () => {
       socket.on('coupe', () => {      
         if(client.clientId !== null) {     
             typeCoupure = "bouton déco";
-            User.updateStatut(client.clientId, 0)
-            .then((results) => { 
-              io.emit('coupe',  client.socket.id, client.clientId, typeCoupure);
-              Logger.log("Déconnexion via click logout socket",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
-              client.socket.disconnect(true);
-              delete client.socket;
-            });
+            decoC(User, io, client, typeCoupure);            
         }     
       });
 
       // Le client a coupé le socket (changement de page, refresh, fermeture brutale etc ...)
       socket.on('disconnect', () => {
         if(typeCoupure === "auto"){
-          if(client.clientId !== null) {                
-            User.updateStatut(client.clientId, 0)
-            .then((results) => {
-              io.emit('coupe',  client.socket.id, client.clientId, typeCoupure); // pour prevenir les autres clients que l'on est déconnecté
-              Logger.log("Déconnexion socket et BDD",`Socket ${client.socket.id} ( client id : ${client.clientId}) déconnecté.`, client.socket);
-              client.socket.disconnect(true);
-              delete client.socket;   
-            });
+          if(client.clientId !== null) {  
+            decoC(User, io, client, typeCoupure);                          
           }
         }
       });

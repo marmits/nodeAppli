@@ -60,10 +60,10 @@ mainScript.prototype.affichage = function(idClient=null, datas={}, statut="off")
             let input  = document.createElement("input");
             that.main[0].appendChild(input).setAttribute("id","client_id");
             that.main[0].appendChild(input).setAttribute("type","hidden");                      
-            document.getElementById("client_id").value =datas.client.id;
+            document.getElementById("client_id").value =datas.client.infos.id;
 
             let div = document.createElement("DIV");
-            that.resultat[0].appendChild(div).innerHTML=datas.client.id + " " + datas.client.infos.nom + " " + datas.client.infos.role + " connecté"; 
+            that.resultat[0].appendChild(div).innerHTML=datas.client.infos.id + " " + datas.client.infos.nom + " " + datas.client.infos.role + " connecté"; 
             
             that.setElementVisibility(that.main[0].querySelectorAll('div.deconnect')[0], true);
             that.setElementVisibility(that.main[0].querySelectorAll('div.login')[0], false);
@@ -86,11 +86,11 @@ mainScript.prototype.bindLoginSubmit = function(){
                 that.SetLoginSession(that.login.value)          
                 .then((datasBdd) =>  {
                     donnees = datasBdd;
-                    that.idClientConnected = donnees.client.id;                    
+                    that.idClientConnected = donnees.client.infos.id;                                    
                     return that.registerToNodeJsServer();
                 })
                 .then((OKserverNodejs) => {  
-                    return that.SetStatutClient(donnees.client.id, "1");
+                    return that.SetStatutClient(donnees.client.infos.id, "1");
                 })
                 .then((updateStatutClient) => {
                     if( updateStatutClient.updateOnline === "1"){
@@ -99,7 +99,7 @@ mainScript.prototype.bindLoginSubmit = function(){
                         that.nodeJSclient.socketio.on('connecton', function(User){
                             that.affichage(null,donnees, "on");
                             //ici a chaque fois qu'un client se connecte                            
-                            let sortie = User.data.client.id + " " + User.data.client.infos.nom + " " + User.socketIdClient;
+                            let sortie = User.data.client.infos.id + " " + User.data.client.infos.nom + " " + User.socketIdClient;
                             let div = document.createElement("DIV");
                             that.resultat[0].appendChild(div).innerHTML=sortie + " ONLINE";                        
                         });
@@ -108,9 +108,9 @@ mainScript.prototype.bindLoginSubmit = function(){
                             deco.addEventListener('click', function(e){
                                 e.stopPropagation();
                                 e.preventDefault(); 
-                                clientId = donnees.client.id;
+                                clientId = donnees.client.infos.id;
                                 compteur=0;
-                                that.resultat[0].innerHTML="";
+                                that.resultat[0].innerHTML="";                              
                                 that.nodeJSclient.socketio.emit('coupe',  clientId);            
                                                          
                             });
@@ -140,11 +140,15 @@ mainScript.prototype.bindLoginSubmit = function(){
                                         that.resultat[0].appendChild(div).innerHTML=infosClientDeco.results.nom + " est déconnecté (" + type + ")";  
                                     }
                                 } 
-                            });
+                            })
+                             .catch((raison) => {
+			                    console.log(raison);
+			                    alert(raison);
+			                });  
                         });     
                         that.nodeJSclient.socketio.on('clicklien', function(msg, client, socketID){                  
                             let div = document.createElement("DIV");
-                            that.resultat[0].appendChild(div).innerHTML= socketID + " "  + msg + " id: " +  client.id + "nom: " + client.infos.nom; 
+                            that.resultat[0].appendChild(div).innerHTML= socketID + " "  + msg + " id: " +  client.infos.id + "nom: " + client.infos.nom; 
                         });                                                 
                     }
                 })
@@ -169,6 +173,7 @@ mainScript.prototype.SetLoginSession = async function(login){
         xhr.onload = function(){
             if (xhr.status != 200){ 
                 console.log("Erreur " + xhr.status + " : " + xhr.statusText);
+                reject("entrer un login");
             }else{ 
                 let datas = [];
                 let status = xhr.status;
@@ -176,7 +181,7 @@ mainScript.prototype.SetLoginSession = async function(login){
                 if(obj.connect === 1){
                     resolve(obj);
                 } else {
-                    reject("deja connecté");
+                    reject(obj.message);
                 }
             }
         };
@@ -203,8 +208,11 @@ mainScript.prototype.SetStatutClient = async function(clientId, statut){
                 let datas = [];
                 let status = xhr.status;
                 let obj = JSON.parse(JSON.stringify(xhr.response));    
-
-                resolve(obj);
+                if(obj.error === 0){
+                	resolve(obj);
+                } else {
+                	reject(obj.message);
+                }
             }
         };
         xhr.onerror = function(){
@@ -256,8 +264,12 @@ mainScript.prototype.GetInfosClient = async function(clientId){
             }else{ 
                 let datas = [];
                 let status = xhr.status;
-                let obj = JSON.parse(JSON.stringify(xhr.response));                        
-                resolve(obj);
+                let obj = JSON.parse(JSON.stringify(xhr.response));   
+                if(obj.error === 0){                     
+                	resolve(obj);
+                } else if(obj.error === 1){
+                	reject(obj.message);
+                }
             }
         };
         xhr.onerror = function(){
