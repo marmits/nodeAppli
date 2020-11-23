@@ -5,20 +5,12 @@ var app = express();
 const cors = require('cors');
 const session = require('express-session');
 const bodyParser = require('body-parser');
-var sharedsession = require("express-socket.io-session");
+//var sharedsession = require("express-socket.io-session");
 const environment = require('./src/config/environment');
 const configuration = require(`./config/${environment.jsonConfigFile}`);
-
-cleanUpServer = function(val) {
-  console.log(val + ' App specific cleanup code...');
-};
-[`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((eventType) => {
-  //process.on(eventType, cleanUpServer.bind(null, eventType));
-});
-
 const portServerNodejs = configuration.address.portnodejs;
-
-app.use(session({secret: 'ssshhhhh',saveUninitialized: true,resave: true}));
+var SessionStore = require('session-file-store')(session);
+app.use(session({store: new SessionStore({path: __dirname+'/tmp/sessions'}),secret: 'ssshhhhh',saveUninitialized: true,resave: true}));
 app.use(bodyParser.json());      
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static(__dirname + '/views'));
