@@ -11,5 +11,8 @@
   	"nodejs" : "127.0.0.1",
   	"portnodejs" : "1337",
   	"apache" : "http://devtest:64640"
+  },
+  "session":{
+    "rep":"/tmp/nodeAppli'"
   }
 }
