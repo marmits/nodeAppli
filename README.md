@@ -14,6 +14,7 @@ grunt watch -> sass
 
 set server: 
 config/configuration_dev.json 
+-> config/src/environment.js
 
 set client to access serveur nodes adress in 
 clientnode/js/main.js -> serveurAdress 
