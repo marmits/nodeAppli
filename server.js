@@ -3,14 +3,19 @@ var express = require('express');
 var fs = require('fs');
 var app = express();
 const cors = require('cors');
-const session = require('express-session');
+
 const bodyParser = require('body-parser');
 //var sharedsession = require("express-socket.io-session");
 const environment = require('./src/config/environment');
 const configuration = require(`./config/${environment.jsonConfigFile}`);
 const portServerNodejs = configuration.address.portnodejs;
-var SessionStore = require('session-file-store')(session);
-app.use(session({store: new SessionStore({path: __dirname+'/tmp/sessions'}),secret: 'ssshhhhh',saveUninitialized: true,resave: true}));
+
+
+var Session = require('express-session');
+var SessionStore = require('session-file-store')(Session);
+var session = Session({store: new SessionStore({path: __dirname+'/tmp'}), secret: 'pass', resave: true, saveUninitialized: true});
+app.use(session);
+
 app.use(bodyParser.json());      
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static(__dirname + '/views'));
