@@ -9,11 +9,11 @@ use socket.io client/server
 # instructions
 npm install (package.json) 
 npm start  
-npm  watch -> sass 
+grunt watch -> sass 
 
 
 set server: 
-confg/configuration_dev.json 
+config/configuration_dev.json 
 
 set client to access serveur nodes adress in 
 clientnode/js/main.js -> serveurAdress 
