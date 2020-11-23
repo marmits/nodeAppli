@@ -6,7 +6,8 @@ const cors = require('cors');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 var sharedsession = require("express-socket.io-session");
-
+const environment = require('./src/config/environment');
+const configuration = require(`./config/${environment.jsonConfigFile}`);
 
 cleanUpServer = function(val) {
   console.log(val + ' App specific cleanup code...');
@@ -15,6 +16,7 @@ cleanUpServer = function(val) {
   //process.on(eventType, cleanUpServer.bind(null, eventType));
 });
 
+const portServerNodejs = configuration.address.portnodejs;
 
 app.use(session({secret: 'ssshhhhh',saveUninitialized: true,resave: true}));
 app.use(bodyParser.json());      
@@ -46,8 +48,8 @@ app.use(require('./src/routes/app-ajax'));
 app.use(require('./src/routes/app-router'));
 
 
-// On lance l'écoute du serveur NodeJS sur le port 8001
-let server = http.listen(1337, () => {
+// On lance l'écoute du serveur NodeJS sur le port voir dans config environment
+let server = http.listen(portServerNodejs, () => {
   const {getClientById, deconnectClient:decoC} = require('./src/utils/utils');
   const Client = require('./src/Client');
   const Users = require('./src/Users');

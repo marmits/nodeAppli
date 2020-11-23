@@ -5,6 +5,8 @@ const moment = require('moment');
 var fs = require('fs');
 const http = require('http').Server(app);
 const io = require('socket.io').listen(http);
+const environment = require('../config/environment');
+const configuration = require(`../../config/${environment.jsonConfigFile}`);
 var serveur  = "serveur nodejs\n";
 var message = "power up: Ok\n";
 
@@ -20,11 +22,69 @@ app.get('/',function(req, res) {
     console.log("route /->" + sess.login);
     res.header('Access-Control-Allow-Credentials', 'true');
     res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-    res.end(datas.var1 + "<br />" + datas.var2 + " session email:(" + sess.email + ") -  session login:(" + sess.login + ")");    
+    let adresseClient = `<a href="${configuration.address.apache}/nodeAppli/clientnode/">Client node</a>`;
+    res.end(datas.var1 + "<br />" + datas.var2 + " session email:(" + sess.email + ") -  session login:(" + sess.login + ")<br>" + adresseClient);    
 
 });
 
 
+
+// CREATE ACCOUNT
+// AUTRES EXEMPLES
+app.get('/newAccount', (req, res) => {
+    var path = require('path');
+    sess = req.session;
+
+    console.log("session login de welcome: " + sess.email);
+    if(sess.email) {
+        //return res.redirect('/admin');
+    }
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.sendFile(path.resolve('createCount.html'));
+});
+
+app.post('/validAccount',(req,res) => {
+    const Users = require('../Users');
+    const User = new Users();   
+    sess = req.session;
+    sess.email = req.body.email;
+    sess.pass = req.body.pass;
+
+    User.existUser(sess.email)    
+    .then((results) => {
+        return User.insertNewUser(sess.email, sess.pass);
+    })
+    .then((results) => {
+        
+        res.header('Access-Control-Allow-Credentials', 'true');
+        res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
+        res.end(JSON.stringify({valid:1,  message:results}));
+        console.log(results);
+    })
+    .catch((raison) => {
+        res.header('Access-Control-Allow-Credentials', 'true');
+        res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
+        res.end(JSON.stringify({valid:0,message:raison}));
+      console.log(raison);
+    }); 
+});
+app.get('/presentation',(req,res) => {
+    sess = req.session;
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+    
+    if(sess.email) {
+       
+        res.write(`<h1>Hello ${sess.email} </h1><br>`);
+        res.write(`<a href=${configuration.address.apache}/nodeAppli/clientnode>Connection au client node ici</a>`);
+        res.write(`<br>`);
+        res.end('');
+    }
+    else {
+        res.write('<h1>Please create account.</h1>');
+        res.end('<a href='+'/newAccount'+'>Login</a>');
+    }
+});
 
 // AUTRES EXEMPLES
 app.get('/welcome', (req, res) => {
@@ -35,7 +95,7 @@ app.get('/welcome', (req, res) => {
         return res.redirect('/admin');
     }
     res.header('Access-Control-Allow-Credentials', 'true');
-    res.sendFile(path.resolve('loginForm.html'));
+    res.sendFile(path.resolve('createCount.html'));
 });
 
 
@@ -61,7 +121,7 @@ app.get('/admin',(req,res) => {
        
         res.write(`<h1>Hello ${sess.email} </h1><br>`);
         res.write(`<br>`);
-        res.write(`<a href=http://devtest:64640/nodeAppli/clientnode>Client</a>`);
+        res.write(`<a href=${configuration.address.apache}/nodeAppli/clientnode>Client</a>`);
         res.write(`<br>`);
         res.end('<a href='+'/logout'+'>Logout</a>');
     }

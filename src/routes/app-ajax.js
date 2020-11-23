@@ -10,15 +10,20 @@ var message = "power up: Ok\n";
 
 var clientData = {};
 
-app.get('/sessionuser/:login',(req,res) => {
+
+
+app.get('/sessionuser/:login/:pass',(req,res) => {
     sess = req.session;  
     sess.login = req.params.login;
+    sess.pass = req.params.pass;
+
+    // essai pour les sessions crossdomain
     console.log("route ajax sessionuser->" + sess.email);
     var user = {};
     const Users = require('../Users');
     const Client = require('../Client');
     const User = new Users();    
-    User.checkUser(sess.login)    
+    User.checkUser(sess.login, sess.pass)    
     .then((results) => {
         if(results){            
             if( results.length !== 0){
@@ -62,8 +67,6 @@ app.get('/getinfosclient/:clientId',(req,res) => {
     });
 });  
 
-
-
 app.get('/updatestatut/:userid/statut/:statut',(req,res) => {
     sess = req.session;
     var userid = req.params.userid;
@@ -73,12 +76,12 @@ app.get('/updatestatut/:userid/statut/:statut',(req,res) => {
     const User = new Users();    
     User.updateStatut(userid, statut)
     .then((results) => {
-        updateOnline = results; 
+        updateOnline = results;         
         if( results === "1"){
             return User.onlineUser();  
         }      
     })
-    .then((usersOnline) => {        
+    .then((usersOnline) => {      
         res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
         res.end(JSON.stringify({error:0, usersOnline: usersOnline, updateOnline:updateOnline})); 
     })
@@ -88,8 +91,5 @@ app.get('/updatestatut/:userid/statut/:statut',(req,res) => {
         res.end(JSON.stringify({error:1,message:err}));
     });    
 });    
-
-
-
 
 module.exports = app;

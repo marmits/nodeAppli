@@ -75,6 +75,21 @@ div.container{
       &.hidden{
         display:none;
       } 
+      ul{
+        list-style-type:none;
+        margin:0;
+        padding:0;
+        li{
+          display:inline-block;
+          float:none;
+          width:100%;
+          padding: 0 0 0.6em 0;
+          label{
+            display:block;
+            width:4em;
+          }
+        }
+      }
     }
     div.deconnect{ 
       &.hidden{

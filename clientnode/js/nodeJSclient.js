@@ -1,8 +1,7 @@
 class nodeJSclient {
 
-	constructor (env = null){
-   
-        this.nodejs_server = "http://127.0.0.1:1337";
+	constructor (env = null, serveurAdress){
+        this.nodejs_server = serveurAdress;
         this.socketio = null;
         this.env = env;
         if(env === null){

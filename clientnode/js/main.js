@@ -1,20 +1,24 @@
-var userConnect = {};
-var tabClients = [];
+
 var mainScript = function(){
+	this.serveurAdress = "http://127.0.0.1:1337";
     this.nodeJSclient = null;
     this.lien = document.getElementById('lien');
     this.resultat = document.querySelectorAll('div.resultat');
     this.main = document.querySelectorAll('div.main');
     this.gauche = document.querySelectorAll('div.gauche');
     this.login =  document.getElementById("login");
+    this.pass =  document.getElementById("pass");
+    this.newaccount =  document.querySelectorAll("div.newaccount a");
     this.idClientConnected = null;
-    this.socketid = null;
+    this.socketid = null;    
+    this.addressNewAccount = this.serveurAdress + "/newAccount";
 };
 
 mainScript.prototype.init = function(){
     let that = this;
     that.setElementVisibility(that.main[0].querySelectorAll('div.deconnect')[0], false);
     that.bindLoginSubmit();
+    that.openPageNewAccount();    
     /*that.registerToNodeJsServer()
     .then((okConnectSocketIO) => { 
     });         
@@ -35,6 +39,15 @@ mainScript.prototype.setElementVisibility = function(element,visible){
     }
 };
 
+mainScript.prototype.openPageNewAccount = function(){
+	let that = this;
+	that.newaccount[0].addEventListener('click', function(e){
+	    e.stopPropagation();
+	    e.preventDefault(); 
+		window.location.href = that.addressNewAccount;
+	});
+}
+
 mainScript.prototype.setElementHTML = function(element,visible){
 	let that = this;
 	let a = document.createElement("A");      
@@ -47,7 +60,7 @@ mainScript.prototype.setElementHTML = function(element,visible){
 mainScript.prototype.registerToNodeJsServer = async function() {
     let that = this;
     let res = new Promise(function (resolve, reject) {   
-        that.nodeJSclient = new nodeJSclient();
+        that.nodeJSclient = new nodeJSclient(null, that.serveurAdress);
         // Connexion au serveur
         resolve(that.nodeJSclient.connectServer(that.idClientConnected));                
         reject("connection nodejs serveur impossible");          
@@ -94,22 +107,18 @@ mainScript.prototype.bindLoginSubmit = function(){
         if(submit !== undefined){ 
             submit.addEventListener('click', function(e){
                 e.stopPropagation();
-                e.preventDefault(); 
-                
-                that.SetLoginSession(that.login.value)          
+                e.preventDefault();                 
+                that.SetLoginSession(that.login.value, that.pass.value)          
                 .then((datasBdd) =>  {
                     donnees = datasBdd;
                     that.idClientConnected = donnees.client.infos.id;                                    
                     return that.registerToNodeJsServer();
                 })
-                .then((OKserverNodejs) => {  
-
+                .then((OKserverNodejs) => {                  	
                     return that.SetStatutClient(donnees.client.infos.id, "1");
                 })
                 .then((updateStatutClient) => {
-                    if( updateStatutClient.updateOnline === "1"){
-
-                    	
+                    if( updateStatutClient.updateOnline === "1"){                    	                 
                     	that.setElementHTML();
                         that.nodeJSclient.socketio.emit('connecton',  donnees);
                         that.nodeJSclient.socketio.on('connecton', function(User){
@@ -118,7 +127,6 @@ mainScript.prototype.bindLoginSubmit = function(){
                             let sortie = User.data.client.infos.id + " " + User.data.client.infos.nom + " " + User.socketIdClient;
                             let div = document.createElement("DIV");
                             that.resultat[0].appendChild(div).innerHTML=sortie + " ONLINE";                               
-
                         });
 
                         if(deco !== undefined){
@@ -128,8 +136,7 @@ mainScript.prototype.bindLoginSubmit = function(){
                                 clientId = donnees.client.infos.id;
                                 compteur=0;
                                 that.resultat[0].innerHTML="";                              
-                                that.nodeJSclient.socketio.emit('coupe',  clientId);            
-                                                         
+                                that.nodeJSclient.socketio.emit('coupe',  clientId);                                                                    
                             });
                         }
                         if(lien !== undefined){
@@ -179,9 +186,9 @@ mainScript.prototype.bindLoginSubmit = function(){
     return false;
 };
 
-mainScript.prototype.SetLoginSession = async function(login){
+mainScript.prototype.SetLoginSession = async function(login, pass){
     let xhr=new XMLHttpRequest();
-    let url = "http://127.0.0.1:1337/sessionuser/" + login;        
+    let url = this.serveurAdress + "/sessionuser/" + login + "/" + pass;  
     let res = new Promise(function (resolve, reject) {
         xhr.withCredentials = false;
         xhr.open("GET",url);
@@ -211,8 +218,7 @@ mainScript.prototype.SetLoginSession = async function(login){
 
 mainScript.prototype.SetStatutClient = async function(clientId, statut){
     let xhr=new XMLHttpRequest();
-    let url = "http://127.0.0.1:1337/updatestatut/" + clientId + "/statut/" + statut;
-
+    let url = this.serveurAdress + "/updatestatut/" + clientId + "/statut/" + statut;
     let res = new Promise(function (resolve, reject) {
         xhr.withCredentials = false;
         xhr.open("GET",url);
@@ -241,8 +247,7 @@ mainScript.prototype.SetStatutClient = async function(clientId, statut){
 
 mainScript.prototype.SetidclientSession = async function(socketid){
     let xhr=new XMLHttpRequest();
-    let url = "http://127.0.0.1:1337/idclientsession/" + socketid;
-
+    let url = this.serveurAdress + "/idclientsession/" + socketid;
     let res = new Promise(function (resolve, reject) {
         xhr.withCredentials = false;
         xhr.open("GET",url);
@@ -268,8 +273,7 @@ mainScript.prototype.SetidclientSession = async function(socketid){
 
 mainScript.prototype.GetInfosClient = async function(clientId){
     let xhr=new XMLHttpRequest();
-    let url = "http://127.0.0.1:1337/getinfosclient/" + clientId;
-
+    let url = this.serveurAdress + "/getinfosclient/" + clientId;
     let res = new Promise(function (resolve, reject) {
         xhr.withCredentials = false;
         xhr.open("GET",url);
@@ -296,7 +300,5 @@ mainScript.prototype.GetInfosClient = async function(clientId){
     return res;    
 };
 
-
-var app = new mainScript();
+let app = new mainScript();
 app.init();
-
