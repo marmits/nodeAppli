@@ -1,3 +1,2 @@
 **/node_modules
-/.gitignore
-**/config/configuration_dev.json
+configuration_dev.json
