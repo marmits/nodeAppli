@@ -64,7 +64,7 @@ mainScript.prototype.affichage = function(idClient=null, datas={}, statut="off")
         } else {
             let span = document.createElement("SPAN");
             that.main[0].appendChild(span).innerHTML = "";
-            that.main[0].querySelectorAll('span')[0].innerHTML = datas.client.infos.nom;
+            that.main[0].querySelectorAll('span')[0].innerHTML = "login as : " + datas.client.infos.nom;
             
 
             let input  = document.createElement("input");
