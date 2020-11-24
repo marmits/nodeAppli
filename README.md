@@ -1,4 +1,4 @@
-# nodeAppli
+# nodeAppli (full nodejs)
 use socket.io client/server  
 [https://github.com/socketio/socket.io](https://github.com/socketio/socket.io)
 
@@ -8,11 +8,11 @@ Test nodejs socketio
 npm install (package.json)  
 npm start  
 
-grunt watch -> sass 
+grunt watch -> sass (Gruntfile.js)
 
 
 set server: 
-config/configuration_dev.json 
+config/configuration_work.json 
 -> config/src/environment.js
 
 set client to access serveur nodes adress in 
