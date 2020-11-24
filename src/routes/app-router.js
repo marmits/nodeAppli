@@ -17,14 +17,26 @@ var datas = {var1:serveur, var2:message, var3:"test3", var4:"test4"};
 
 app.get('/',function(req, res) {
 
-	sess = req.session;
-	console.log("route /->" + sess.email);
+    sess = req.session;
+    console.log("route /->" + sess.email);
     console.log("route /->" + sess.login);
     res.header('Access-Control-Allow-Credentials', 'true');
     res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-    let adresseClient = `<a href="${configuration.address.apache}/nodeAppli/clientnode/">Client node</a>`;
+    let serverUrl = configuration.address.nodejs + ":" + configuration.address.portnodejs + "/accueil.html";
+    let adresseClient = `<a href="${serverUrl}">Client node</a>`;
     res.end(datas.var1 + "<br />" + datas.var2 + " session email:(" + sess.email + ") -  session login:(" + sess.login + ")<br>" + adresseClient);    
 
+});
+
+
+
+app.get('/accueil.html', function(req, res) {
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    fs.readFile('clientnode/accueil.html', function (err,data) {
+        res.end(data);
+    });
+ 
 });
 
 
@@ -76,7 +88,7 @@ app.get('/presentation',(req,res) => {
     if(sess.email) {
        
         res.write(`<h1>Hello ${sess.email} </h1><br>`);
-        res.write(`<a href=${configuration.address.apache}/nodeAppli/clientnode>Connection au client node ici</a>`);
+        res.write(`<a href=${configuration.address.apache}/nodeAppli/>Accès à l'écran de connexion</a>`);
         res.write(`<br>`);
         res.end('');
     }

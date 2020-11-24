@@ -53,7 +53,9 @@ var corsOptions = {
 
 app.use(cors());
 
-
+console.log(__dirname);
+app.use(express.static(__dirname + '/clientnode'));
+app.use(express.static(__dirname + '/node_modules/socket.io-client/dist'));
 app.use(require('./src/routes/app-ajax'));
 app.use(require('./src/routes/app-router'));
 

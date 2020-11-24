@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+    <title>Client Node</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+   
+    <div class="container">
+    	<div class="gauche">
+	    	<div class="resultat"></div>   
+	    </div>
+	    <div class="main">
+	    	<div class="login">
+	    		<ul>
+		    		<li>
+			    	 	<label for="nom">Nom</label>
+				    	<input id="login" type="text" value=""/>
+			    	</li>
+			    	<li>
+			    	 	<label for="pass">Pass</label>
+				    	<input id="pass" type="text" value=""/>
+			    	</li>
+		    	</ul>
+		    	<div>
+		    		<button id="submit" type="submit" class="btn btn-primary">Submit</button>
+		    	</div>
+		    	<div class="newaccount">
+		    		<a href="#">Créer un compte</a>
+		    	</div>
+		    </div>
+		    <div class="deconnect">	    	 	
+		    	<button id="deco" type="submit" class="btn btn-primary">Deco</button>
+		    </div>
+	    </div>
+    </div>
+
+<script src="../node_modules/socket.io-client/dist/socket.io.js"></script>
+<script src="js/nodeJSclient.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>     
