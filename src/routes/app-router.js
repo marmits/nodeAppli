@@ -42,12 +42,11 @@ app.get('/accueil.html', function(req, res) {
 
 
 // CREATE ACCOUNT
-// AUTRES EXEMPLES
 app.get('/newAccount', (req, res) => {
     var path = require('path');
     sess = req.session;
 
-    console.log("session login de welcome: " + sess.email);
+    console.log("session login de newAccount: " + sess.login);
     if(sess.email) {
         //return res.redirect('/admin');
     }
@@ -98,6 +97,8 @@ app.get('/presentation',(req,res) => {
     }
 });
 
+
+// indépendant de l'application pour tests
 // AUTRES EXEMPLES
 app.get('/welcome', (req, res) => {
     var path = require('path');

@@ -54,7 +54,7 @@ mainScript.prototype.setElementHTML = function(element,visible){
 	that.gauche[0].prepend(a);  
 	a.setAttribute("href", "#");
 	a.setAttribute("id","lien");
-	a.innerHTML = "Client envoi pour nodejs";
+	a.innerHTML = "Poke broadcast for all client";
 };
 
 mainScript.prototype.registerToNodeJsServer = async function() {
@@ -126,7 +126,8 @@ mainScript.prototype.bindLoginSubmit = function(){
                             //ici a chaque fois qu'un client se connecte                            
                             let sortie = User.data.client.infos.id + " " + User.data.client.infos.nom + " " + User.socketIdClient;
                             let div = document.createElement("DIV");
-                            that.resultat[0].appendChild(div).innerHTML=sortie + " ONLINE";                               
+                            that.resultat[0].appendChild(div).innerHTML=sortie + " ONLINE";
+                            document.title = User.data.client.infos.nom + " is ONLINE";                               
                         });
 
                         if(deco !== undefined){

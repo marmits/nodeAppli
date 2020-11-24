@@ -1,6 +1,8 @@
 <html>
 <head>
-<title>Session Management in NodeJS using Node and Express</title>
+<title>Create your account</title>
+<link rel="stylesheet" href="css/reset.css">
+<link rel="stylesheet" href="css/style.css">
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script>
 $(document).ready(function(){
@@ -26,8 +28,28 @@ $(document).ready(function(){
 </script>
 </head>
 <body>
-<input type="text" size="40" placeholder="Type your email" id="email"><br />
-<input type="password" size="40" placeholder="Type your password" id="password"><br />
-<input type="button" value="Submit" id="submit">
+
+
+<div class="container">
+<div class="main">
+    <div class="login">
+        <ul>
+            <li>
+                <input type="text" placeholder="Type your email" id="email">
+            </li>
+            <li>
+                <input type="password" placeholder="Type your password" id="password">
+            </li>
+        </ul>
+        <div>
+            <input type="button" value="Create" id="submit">
+        </div>        
+        <div>
+            <a href="accueil.html">Annuler</a>
+        </div> 
+    </div>    
+</div>
+</div>
+
 </body>
 </html>

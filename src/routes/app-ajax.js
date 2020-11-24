@@ -18,7 +18,7 @@ app.get('/sessionuser/:login/:pass',(req,res) => {
     sess.pass = req.params.pass;
 
     // essai pour les sessions crossdomain
-    console.log("route ajax sessionuser->" + sess.email);
+    console.log("route ajax sessionuser->" + sess.login);
     var user = {};
     const Users = require('../Users');
     const Client = require('../Client');

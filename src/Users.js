@@ -60,9 +60,9 @@ module.exports = class Users
                     }
 
                 });
-                return resolve("ajout d'un user ok");
+                return resolve("add user ok");
             } else {
-                return reject("email ou password vide");
+                return reject("email or password empty");
             }            
         });      
     };
