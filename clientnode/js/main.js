@@ -158,7 +158,7 @@ mainScript.prototype.bindLoginSubmit = function(){
                                     if(infosClientDeco.results.id === parseInt(document.getElementById("client_id").value)){
                                         // pour gérer l'interface du client concerné
                                         //window.location.href = "/nodeAppli/clientnode/"; 
-                                        window.location.href = "/accueil.html"; 
+                                        window.location.href = "/connexion"; 
                                     }
                                     else {                                        
                                         // pour les autres, broadcast pour informer de la déconnexion

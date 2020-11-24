@@ -4,30 +4,17 @@ var fs = require('fs');
 var app = express();
 const cors = require('cors');
 
-var session = require('express-session');
-var FileStore = require('session-file-store')(session);
 
 
 const bodyParser = require('body-parser');
+
 //var sharedsession = require("express-socket.io-session");
 const environment = require('./src/config/environment');
 const configuration = require(`./config/${environment.jsonConfigFile}`);
 const portServerNodejs = configuration.address.portnodejs;
-const tmpDirectory = configuration.session.rep;
 
 
 
-var fileStoreOptions = {path:tmpDirectory};
-
-app.use(session({
-    store: new FileStore(fileStoreOptions),
-    secret: 'ssshhhhh',
-    saveUninitialized: true,
-    resave: true
-
-}));
-
-//app.use(session({secret: 'ssshhhhh',saveUninitialized: true,resave: true}));
 
 app.use(bodyParser.json());      
 app.use(bodyParser.urlencoded({extended: true}));
@@ -51,6 +38,7 @@ var corsOptions = {
 
 //app.use(cors(corsOptions));
 
+//delete require.cache[require.resolve("./src/routes/app-router")];
 app.use(cors());
 
 console.log(__dirname);
