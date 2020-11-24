@@ -13,6 +13,6 @@
   	"apache" : "http://devtest:64640"
   },
   "session":{
-    "rep":"/tmp/nodeAppli'"
+    "rep":"/tmp/nodeAppli"
   }
 }
