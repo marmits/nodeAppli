@@ -4,6 +4,9 @@ use socket.io client/server
 
 Test nodejs socketio
 
+
+**ClientNode with apache clientnode/index.html**
+
 # instructions
 npm install (package.json)  
 npm start  
