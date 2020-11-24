@@ -11,9 +11,20 @@ npm start
 grunt watch -> sass (Gruntfile.js)
 
 
-set server: 
-config/configuration_work.json 
+set server:
+by default serveur address:
+127.0.0.1:1337
+
 -> config/src/environment.js
+config/configuration_work.json
+
+-> clientnode/js/main.js
+
+-> via apache access (redirection) 
+index.html
+
+
+
 
 set client to access serveur nodes adress in 
 clientnode/js/main.js -> serveurAdress 
