@@ -20,12 +20,12 @@ config/configuration_work.json
 
 -> clientnode/js/main.js
 
--> via apache access (redirection) 
-index.html 
+-> via apache access (redirection)
+index.html
 
-to start app : 
-via apache => http://serveur.local/nodeAppli/ 
-direct nodejs => http://127.0.0.1:1337/connexion 
+to start app :
+via apache => http://serveur.local/nodeAppli/
+direct nodejs => http://127.0.0.1:1337/connexion
 
 
 
