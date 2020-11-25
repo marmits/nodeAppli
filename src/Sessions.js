@@ -11,23 +11,6 @@ const tmpDirectory = configuration.session.rep;
 const fileStoreOptions = {path:tmpDirectory};
 
 
-
-/*
-module.exports.SessionsAppli = function() 
-{
-    return (req,res,next) => {
-		session({
-			store: new FileStore(fileStoreOptions),
-			secret: 'ssshhhhh',
-			saveUninitialized: true,
-			resave: true
-
-		});
-        next();
-    };
-};
-*/
-
 module.exports.SessionsAppli =
 {
 	sessions : session({
@@ -38,5 +21,3 @@ module.exports.SessionsAppli =
 
 	})
 };
-
-//app.use(session({secret: 'ssshhhhh',saveUninitialized: true,resave: true}));

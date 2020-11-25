@@ -12,6 +12,7 @@ var mainScript = function(){
     this.idClientConnected = null;
     this.socketid = null;    
     this.addressNewAccount = this.serveurAdress + "/newAccount";
+    this.has_disconnected = false;
 };
 
 mainScript.prototype.init = function(){
@@ -196,25 +197,22 @@ mainScript.prototype.bindLoginSubmit = function(){
     }
     return false;
 };
+
 mainScript.prototype.bindCloseWindow = function(){
+    let that = this;
+
 	window.addEventListener("beforeunload", function (e) {
-		var confirmationMessage = "\o/";
-		
-		e.returnValue = confirmationMessage;
-
-
-		that.SetLogoutSession()
-		.then((data) => {
-		})
-		.catch((raison) => {
-			console.log(raison);
-			alert(raison);
-		});
-
-		return confirmationMessage;
+         that.SetLogoutSessionBeacon();		
 	});
 };
-mainScript.prototype.SetLogoutSession = async function(){
+
+mainScript.prototype.SetLogoutSessionBeacon = function(){
+    let that = this;
+    let url = that.serveurAdress + "/logout"; 
+    navigator.sendBeacon(url);    
+};
+
+mainScript.prototype.SetLogoutSession = function(){
     let xhr=new XMLHttpRequest();
     let url = this.serveurAdress + "/logout";  
     let res = new Promise(function (resolve, reject) {
@@ -239,7 +237,7 @@ mainScript.prototype.SetLogoutSession = async function(){
             }
         };
         xhr.onerror = function(){
-            reject("connexion sql impossible, lancer nodejs");
+            reject("err SetLogoutSession ajax");
         };
     });
     return res;    
