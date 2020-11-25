@@ -161,6 +161,7 @@ mainScript.prototype.bindLoginSubmit = function(){
                                     if(infosClientDeco.results.id === parseInt(document.getElementById("client_id").value)){
                                         // pour gérer l'interface du client concerné
                                         // on appel la route qui tue la session
+                                        /*
                                         that.SetLogoutSession()
                                         .then((data) => {
                                         	window.location.href = "/connexion"; 
@@ -168,7 +169,14 @@ mainScript.prototype.bindLoginSubmit = function(){
                                         .catch((raison) => {
                                         	console.log(raison);
 			                    			alert(raison);
-                                        });                                        
+                                        });  
+                                        */     
+                                        return new Promise(function (resolve, reject) {
+                                             resolve(that.SetLogoutSessionBeacon());
+                                        }).then(() => {
+                                             window.location.href = "/connexion";  
+                                        });
+                                                              
                                     }
                                     else {                                        
                                         // pour les autres, broadcast pour informer de la déconnexion
