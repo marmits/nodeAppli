@@ -198,7 +198,7 @@ mainScript.prototype.bindCloseWindow = function(){
 	});
 };
 
-mainScript.prototype.SetLogoutSessionBeacon = function(){
+mainScript.prototype.SetLogoutSessionBeacon = async function(){
     let that = this;
     let url = that.serveurAdress + "/logout"; 
     navigator.sendBeacon(url);    
