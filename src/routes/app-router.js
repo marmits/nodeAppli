@@ -13,8 +13,6 @@ var message = "power up: Ok\n";
 var datas = {var1:serveur, var2:message, var3:"test3", var4:"test4"};
 
 
-//app.use(SessionsAppli());
-//app.use(sessionsMiddleware());
 
 app.get('/',function(req, res) {
 
@@ -32,24 +30,9 @@ app.get('/',function(req, res) {
 
 app.get('/connexion', function(req, res) {
     var path = require('path');
-    const {SessionsAppli} = require('../Sessions');
-    let test = SessionsAppli.sessions;
-    console.log(test);
-   // console.log(`${SessionsAppli}`);
-    req.SessionsAppli.destroy(function(err) {
-     // cannot access session here
-
-        console.log("ici" + err);
-        res.header('Access-Control-Allow-Credentials', 'true');
-        res.sendFile(path.resolve('clientnode/connexion.html'));
-    });
-    
-     console.log("connexion");
-    /*res.writeHead(200, {'Content-Type': 'text/html'});
-    fs.readFile('clientnode/connexion.html', function (err,data) {
-        res.end(data);
-    });
- */  
+    //sess = req.session; 
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.sendFile(path.resolve('clientnode/connexion.html'));
 });
 
 
@@ -58,6 +41,7 @@ app.get('/connexion', function(req, res) {
 app.get('/newAccount', (req, res) => {
     var path = require('path');
     sess = req.session;
+
 
     console.log("session login de newAccount: " + sess.login);
     if(sess.login) {
@@ -116,7 +100,8 @@ app.get('/presentation',(req,res) => {
 app.get('/welcome', (req, res) => {
     var path = require('path');
     sess = req.session;
-    console.log("session login de welcome: " + sess.email);
+
+    console.log("session login de welcome: " + sess.test);
     if(sess.email) {
         return res.redirect('/admin');
     }

@@ -10,15 +10,29 @@ var message = "power up: Ok\n";
 
 var clientData = {};
 
-
+app.get('/logout',(req,res) => {    
+    if(req.session){
+        req.session.destroy(function(err) {
+            if(err) {
+                return next(err);
+            } else {
+                req.session = null;            
+                console.log("logout successful");        
+                res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
+                res.end(JSON.stringify({logout:"ok"}));
+            }
+        });
+    }    
+});
 
 app.get('/sessionuser/:login/:pass',(req,res) => {
+
     sess = req.session;  
     sess.login = req.params.login;
     sess.pass = req.params.pass;
 
     // essai pour les sessions crossdomain
-    console.log("route ajax sessionuser->" + sess.login);
+    console.log("route ajax sessionuser->" + sess.login);    
     var user = {};
     const Users = require('../Users');
     const Client = require('../Client');
@@ -70,7 +84,7 @@ app.get('/getinfosclient/:clientId',(req,res) => {
 app.get('/updatestatut/:userid/statut/:statut',(req,res) => {
     sess = req.session;
     var userid = req.params.userid;
-    var statut = req.params.statut;
+    var statut = req.params.statut;   
     var updateOnline = null;
     const Users = require('../Users');
     const User = new Users();    

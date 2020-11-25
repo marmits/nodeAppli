@@ -15,6 +15,12 @@ const portServerNodejs = configuration.address.portnodejs;
 
 
 
+const {SessionsAppli} = require('./src/Sessions');
+app.use(SessionsAppli.sessions);
+/*
+var sess; // global session, NOT recommended
+*/
+
 
 app.use(bodyParser.json());      
 app.use(bodyParser.urlencoded({extended: true}));
@@ -23,7 +29,7 @@ app.use(express.static(__dirname + '/views'));
 const http = require('http').Server(app);
 const io = require('socket.io').listen(http);
 
-var sess; // global session, NOT recommended
+
 
 //io.use(sharedsession(session));
 
@@ -103,7 +109,7 @@ let server = http.listen(portServerNodejs, () => {
 
       socket.on('coupe', () => {      
         if(client.clientId !== null) {     
-            typeCoupure = "bouton déco";
+            typeCoupure = "bouton déco";            
             decoC(User, io, client, typeCoupure);            
         }     
       });
@@ -111,7 +117,7 @@ let server = http.listen(portServerNodejs, () => {
       // Le client a coupé le socket (changement de page, refresh, fermeture brutale etc ...)
       socket.on('disconnect', () => {
         if(typeCoupure === "auto"){
-          if(client.clientId !== null) {  
+          if(client.clientId !== null) {              
             decoC(User, io, client, typeCoupure);                          
           }
         }
