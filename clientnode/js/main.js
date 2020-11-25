@@ -12,7 +12,6 @@ var mainScript = function(){
     this.idClientConnected = null;
     this.socketid = null;    
     this.addressNewAccount = this.serveurAdress + "/newAccount";
-    this.has_disconnected = false;
 };
 
 mainScript.prototype.init = function(){
@@ -20,11 +19,7 @@ mainScript.prototype.init = function(){
     that.setElementVisibility(that.main[0].querySelectorAll('div.deconnect')[0], false);
     that.bindLoginSubmit();
     that.openPageNewAccount();
-    that.bindCloseWindow();
-    /*that.registerToNodeJsServer()
-    .then((okConnectSocketIO) => { 
-    });         
-    */              
+    that.bindCloseWindow();      
 }; 
 
 mainScript.prototype.setElementVisibility = function(element,visible){
@@ -160,17 +155,6 @@ mainScript.prototype.bindLoginSubmit = function(){
                                 if(document.getElementById("client_id")){      
                                     if(infosClientDeco.results.id === parseInt(document.getElementById("client_id").value)){
                                         // pour gérer l'interface du client concerné
-                                        // on appel la route qui tue la session
-                                        /*
-                                        that.SetLogoutSession()
-                                        .then((data) => {
-                                        	window.location.href = "/connexion"; 
-                                        })
-                                        .catch((raison) => {
-                                        	console.log(raison);
-			                    			alert(raison);
-                                        });  
-                                        */     
                                         return new Promise(function (resolve, reject) {
                                              resolve(that.SetLogoutSessionBeacon());
                                         }).then(() => {
@@ -218,37 +202,6 @@ mainScript.prototype.SetLogoutSessionBeacon = function(){
     let that = this;
     let url = that.serveurAdress + "/logout"; 
     navigator.sendBeacon(url);    
-};
-
-mainScript.prototype.SetLogoutSession = function(){
-    let xhr=new XMLHttpRequest();
-    let url = this.serveurAdress + "/logout";  
-    let res = new Promise(function (resolve, reject) {
-        xhr.withCredentials = false;
-        xhr.open("GET",url);
-        xhr.responseType = "json";
-        xhr.send();
-        xhr.onload = function(){
-            if (xhr.status != 200){ 
-                console.log("Erreur " + xhr.status + " : " + xhr.statusText);
-                reject("erreur acces logout route");
-            }else{ 
-                let datas = [];
-                let status = xhr.status;
-                let obj = JSON.parse(JSON.stringify(xhr.response)); 
-                console.log(obj);  
-                if(obj.logout === "ok"){
-                    resolve(obj);
-                } else {
-                    reject("logout error");
-                }
-            }
-        };
-        xhr.onerror = function(){
-            reject("err SetLogoutSession ajax");
-        };
-    });
-    return res;    
 };
 
 mainScript.prototype.SetLoginSession = async function(login, pass){
