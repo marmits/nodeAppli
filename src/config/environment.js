@@ -1,4 +1,4 @@
 module.exports = {
-    jsonConfigFile: 'configuration_misc.json'
+    jsonConfigFile: 'configuration_home.json'
 };
 
