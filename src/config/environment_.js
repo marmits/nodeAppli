@@ -1,3 +1,3 @@
 module.exports = {
-    jsonConfigFile: 'configuration_work.json'
+    jsonConfigFile: 'configuration_misc.json'
 };
