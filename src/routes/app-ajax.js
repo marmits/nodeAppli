@@ -10,8 +10,7 @@ var message = "power up: Ok\n";
 
 var clientData = {};
 
-app.post('/logout',(req,res) => {    
-    console.log("logout successful");  
+app.post('/logout',(req,res) => {        
     if(req.session){
         req.session.destroy(function(err) {
             if(err) {

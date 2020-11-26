@@ -154,13 +154,16 @@ mainScript.prototype.bindLoginSubmit = function(){
                             .then((infosClientDeco) =>  { 
                                 if(document.getElementById("client_id")){      
                                     if(infosClientDeco.results.id === parseInt(document.getElementById("client_id").value)){
-                                        // pour gérer l'interface du client concerné
-                                        return new Promise(function (resolve, reject) {
-                                             resolve(that.SetLogoutSessionBeacon());
-                                        }).then(() => {
-                                             window.location.href = "/connexion";  
-                                        });
-                                                              
+                                       // pour gérer l'interface du client concerné
+                                        // on appel la route qui tue la session
+                                        that.SetLogoutSession()
+                                        .then((data) => {
+                                            window.location.href = "/connexion"; 
+                                        })
+                                        .catch((raison) => {
+                                            console.log(raison);
+                                            alert(raison);
+                                        });                                                              
                                     }
                                     else {                                        
                                         // pour les autres, broadcast pour informer de la déconnexion
@@ -198,10 +201,43 @@ mainScript.prototype.bindCloseWindow = function(){
 	});
 };
 
+// pour la fermeture fenetre ou navigateur 
 mainScript.prototype.SetLogoutSessionBeacon = async function(){
     let that = this;
     let url = that.serveurAdress + "/logout"; 
     navigator.sendBeacon(url);    
+};
+
+// pour le bouton déconnexion
+mainScript.prototype.SetLogoutSession = async function(){
+    let xhr=new XMLHttpRequest();
+    let url = this.serveurAdress + "/logout";  
+    let res = new Promise(function (resolve, reject) {
+        xhr.withCredentials = false;
+        xhr.open("POST",url);
+        xhr.responseType = "json";
+        xhr.send();
+        xhr.onload = function(){
+            if (xhr.status != 200){ 
+                console.log("Erreur " + xhr.status + " : " + xhr.statusText);
+                reject("erreur acces logout route");
+            }else{ 
+                let datas = [];
+                let status = xhr.status;
+                let obj = JSON.parse(JSON.stringify(xhr.response)); 
+                console.log(obj);  
+                if(obj.logout === "ok"){
+                    resolve(obj);
+                } else {
+                    reject("logout error");
+                }
+            }
+        };
+        xhr.onerror = function(){
+            reject("connexion sql impossible, lancer nodejs");
+        };
+    });
+    return res;    
 };
 
 mainScript.prototype.SetLoginSession = async function(login, pass){
