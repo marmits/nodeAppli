@@ -1,0 +1,18 @@
+{
+  "databases" : {
+    "nodeappli" : {
+      "host" : "127.0.0.1",
+      "user" : "root",
+      "pwd"  : "",
+      "database" : "nodeappli"
+    }
+  },
+  "address" : {
+  	"nodejs" : "127.0.0.1",
+  	"portnodejs" : "1337",
+  	"apache" : "http://test.zotac.conde"
+  },
+  "session":{
+    "rep":"/tmp/nodeAppli"
+  }
+}
