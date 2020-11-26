@@ -5,6 +5,9 @@ use socket.io client/server
 Test nodejs socketio
 
 # instructions
+
+rename nodeAppli/src/config/environment_.js => nodeAppli/src/config/environment.js  
+
 npm install (package.json)  
 npm start  
 
