@@ -1,5 +1,5 @@
 #####
-nodemon (pour eviter de relancer le cript a chaque modification)
+nodemon (pour eviter de relancer le script a chaque modification)
 https://riptutorial.com/fr/node-js/example/5642/autoreload-sur-les-modifications-du-code-source-a-l-aide-de-nodemon
 
 Le paquet nodemon permet de recharger automatiquement votre programme lorsque vous modifiez un fichier du code source.
