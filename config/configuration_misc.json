@@ -8,7 +8,7 @@
     }
   },
   "address" : {
-  	"nodejs" : "127.0.0.1",
+  	"nodejs" : "http://127.0.0.1",
   	"portnodejs" : "1337",
   	"apache" : "http://test.zotac.conde"
   },
