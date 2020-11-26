@@ -1,5 +1,6 @@
 const Logger = require('../Logger');
 const {clients} = require('../../server');
+var fs = require('fs');
 
 /**
  * Retourne le client ou undifined en fonction du client_id recherché
@@ -52,7 +53,7 @@ function removeClient(agent_id)
         }
 
         return reject("Le client n'a pas été trouver.");
-    })
+    });
 }
 
 function deconnectClient(User, io, client, typeCoupure){
@@ -80,9 +81,47 @@ function deconnectClient(User, io, client, typeCoupure){
     
 }
 
+async function rmTmpDir(dir, removeSelf){
+    return new Promise((resolve, reject) => {
+        if (removeSelf === undefined){
+            removeSelf = true;
+        }
+        try { 
+            var files = fs.readdirSync(dir); 
+            if (files.length > 0){            
+                for (var i = 0; i < files.length; i++) {
+                    var filePath = dir + '/' + files[i];
+                    if (fs.statSync(filePath).isFile()){
+                        fs.unlinkSync(filePath);
+                    }
+                    else{                        
+                        fs.rmdir(filePath, { recursive: true }, (err) => {
+                            if (err) {
+                                reject(err);
+                            }   
+                        });    
+                    }
+                }
+                if (removeSelf){
+                    fs.rmdir(dir, { recursive: true }, (err) => {
+                        if (err) {
+                            reject(err);
+                        }   
+                    }); 
+                }
+            }
+            resolve();
+        }
+        catch(e) { 
+            reject(e) ;
+        }            
+    });
+}
+
 module.exports = {
     getClientById,
     verifyRequestParameters,
     removeClient,
-    deconnectClient
+    deconnectClient,
+    rmTmpDir
 };

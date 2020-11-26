@@ -12,7 +12,8 @@ const bodyParser = require('body-parser');
 const environment = require('./src/config/environment');
 const configuration = require(`./config/${environment.jsonConfigFile}`);
 const portServerNodejs = configuration.address.portnodejs;
-
+const tmpDirectory = configuration.session.rep;
+const fileStoreOptions = {path:tmpDirectory};
 
 
 const {SessionsAppli} = require('./src/Sessions');
@@ -20,7 +21,6 @@ app.use(SessionsAppli.sessions);
 /*
 var sess; // global session, NOT recommended
 */
-
 
 app.use(bodyParser.json());      
 app.use(bodyParser.urlencoded({extended: true}));
@@ -47,7 +47,7 @@ var corsOptions = {
 //delete require.cache[require.resolve("./src/routes/app-router")];
 app.use(cors());
 
-console.log(__dirname);
+
 app.use(express.static(__dirname + '/clientnode'));
 app.use(express.static(__dirname + '/node_modules/socket.io-client/dist'));
 app.use(require('./src/routes/app-ajax'));
@@ -56,11 +56,12 @@ app.use(require('./src/routes/app-router'));
 
 // On lance l'écoute du serveur NodeJS sur le port voir dans config environment
 let server = http.listen(portServerNodejs, () => {
-  const {getClientById, deconnectClient:decoC} = require('./src/utils/utils');
-  const Client = require('./src/Client');
-  const Users = require('./src/Users');
-  const User = new Users();
-  User.resetConnection() // on remet le statut online à 0 pour tout le monde au lancemant de l'appli
+  const {getClientById, deconnectClient:decoC, rmTmpDir} = require('./src/utils/utils');
+
+  rmTmpDir(fileStoreOptions.path, false)// on vide le repertoire des sessions
+  .then(() => {
+    User.resetConnection(); // on remet le statut online à 0 pour tout le monde au lancemant de l'appli
+  })
   .then((results) => { 
     let host = server.address().address;
     let port = server.address().port;
@@ -126,7 +127,17 @@ let server = http.listen(portServerNodejs, () => {
     });
   }).catch((raison) => {
       console.log(raison);
-  });   
+  });  
+
+
+  const Client = require('./src/Client');
+  const Users = require('./src/Users');
+  const User = new Users();
+
+
+
+  User.resetConnection() // on remet le statut online à 0 pour tout le monde au lancemant de l'appli
+   
 });
 
 

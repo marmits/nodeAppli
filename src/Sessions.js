@@ -5,9 +5,6 @@ const configuration = require(`../config/${environment.jsonConfigFile}`);
 const portServerNodejs = configuration.address.portnodejs;
 
 const tmpDirectory = configuration.session.rep;
-
-
-
 const fileStoreOptions = {path:tmpDirectory};
 
 

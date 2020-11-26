@@ -12,21 +12,22 @@ var message = "power up: Ok\n";
 
 var datas = {var1:serveur, var2:message, var3:"test3", var4:"test4"};
 
-
-
 app.get('/',function(req, res) {
 
-    sess = req.session;
-    console.log("session login /->" + sess.login);
     res.header('Access-Control-Allow-Credentials', 'true');
     res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
     let serverUrl = configuration.address.nodejs + ":" + configuration.address.portnodejs + "/connexion";
     let adresseClient = `<a href="${serverUrl}">Client node</a>`;
-    res.end(datas.var1 + "<br />" + datas.var2 + " session email:(" + sess.email + ") -  session login:(" + sess.login + ")<br>" + adresseClient);    
-
+    let DatasSession = "";
+    if(req.session){
+        sess = req.session;
+        console.log("session login /->" + sess.login);
+        DatasSession = " session connect:(" + sess.connect + ") -  session login:(" + sess.login + ")<br>";
+    }
+    
+   
+    res.end(datas.var1 + "<br />" + datas.var2 + " " + adresseClient +"</br>" + DatasSession);    
 });
-
-
 
 app.get('/connexion', function(req, res) {
     var path = require('path');
@@ -34,7 +35,6 @@ app.get('/connexion', function(req, res) {
     res.header('Access-Control-Allow-Credentials', 'true');
     res.sendFile(path.resolve('clientnode/connexion.html'));
 });
-
 
 
 // CREATE ACCOUNT
@@ -109,18 +109,13 @@ app.get('/welcome', (req, res) => {
     res.sendFile(path.resolve('loginForm.html'));
 });
 
-
-
 app.post('/auth',(req,res) => {
    
     sess = req.session;
     sess.email = req.body.email;
     res.header('Access-Control-Allow-Credentials', 'true');
     res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-    res.end('done');
-
-
-            
+    res.end('done');          
 });
 
 app.get('/admin',(req,res) => {
@@ -150,7 +145,6 @@ app.get('/logout',(req,res) => {
         res.header('Access-Control-Allow-Credentials', 'true');
         res.redirect('/welcome');
     });
-
 });
 
 
@@ -169,8 +163,5 @@ app.get('/hello/:name', function(req,res) {
     res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
     res.end(JSON.stringify({message: 'Hello ' + req.params.name + '!', emailSession:sess.email,  testRep:test}));
 });
-
-
-
 
 module.exports = app;
