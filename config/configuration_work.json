@@ -10,7 +10,7 @@
   "address" : {
   	"nodejs" : "http://127.0.0.1",
   	"portnodejs" : "1337",
-  	"apache" : "http://test.zotac.conde"
+  	"apache" : "http://devtest:64640"
   },
   "session":{
     "rep":"/tmp/nodeAppli"
